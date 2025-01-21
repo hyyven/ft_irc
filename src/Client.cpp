@@ -1,35 +1,42 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/10 11:33:57 by afont             #+#    #+#             */
-/*   Updated: 2025/01/21 13:08:12 by afont            ###   ########.fr       */
+/*   Created: 2025/01/21 13:34:47 by afont             #+#    #+#             */
+/*   Updated: 2025/01/21 13:36:29 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/client.hpp"
 #include "../include/server.hpp"
 
-int	main(int ac, char **av)
+Client::Client()
 {
-	(void)ac;
-	(void)av;
-	Server	server;
-	try
-	{
-		signal(SIGINT, Server::signalHandler);
-		signal(SIGQUIT, Server::signalHandler);
-		server.initServer();
-	}
-	catch(const std::exception& e)
-	{
-		std::cerr << e.what() << '\n';
-	}
-	return (0);
 }
 
-//to do : protection av, ac
-//to do : port en arguments
+Client::~Client()
+{
+}
+
+int	Client::getFd()
+{
+	return (this->_fd);
+}
+
+std::string	Client::getIp()
+{
+	return (this->_ip);
+}
+
+void	Client::setFd(int fd)
+{
+	this->_fd = fd;
+}
+
+void	Client::setIp(std::string ip)
+{
+	this->_ip = ip;
+}

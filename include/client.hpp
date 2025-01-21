@@ -17,6 +17,8 @@
 // #include <sys/socket.h>
 #include <netinet/in.h>
 #include <fcntl.h>
+#include <arpa/inet.h>
+#include <cstring>
 
 class	Client
 {
@@ -26,8 +28,8 @@ class	Client
 	public:
 		Client();
 		~Client();
-		int		getFd();
-		int		getIp();
-		void	setFd(int fd);
-		void	setIp(std::string ip);
+		int				getFd();
+		void			setFd(int fd);
+		void			setIp(std::string ip);
+		std::string		getIp();
 };
