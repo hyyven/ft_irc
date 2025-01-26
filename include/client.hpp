@@ -19,12 +19,14 @@
 #include <fcntl.h>
 #include <arpa/inet.h>
 #include <cstring>
+#include <netdb.h>
 
 class	Client
 {
 	private:
 		int			_fd;
 		std::string	_ip;
+		char		_service[NI_MAXSERV];
 	public:
 		Client();
 		~Client();
@@ -32,4 +34,7 @@ class	Client
 		void			setFd(int fd);
 		void			setIp(std::string ip);
 		std::string		getIp();
+		char			*getService();
+		void			setService(char *service);
+		void			sendWelcome(int cli_fd);
 };

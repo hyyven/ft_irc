@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 11:32:15 by afont             #+#    #+#             */
-/*   Updated: 2025/01/21 14:54:45 by afont            ###   ########.fr       */
+/*   Updated: 2025/01/24 12:33:09 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,21 +73,26 @@ void	Server::removeClient(int fd)
 	i = 0;
 	while (i < this->_pfds.size())
 	{
+		// std::cout << "\\" << std::endl;
 		if (this->_pfds[i].fd == fd)
 		{
 			this->_pfds.erase(this->_pfds.begin() + i);
 			break;
 		}
+		i++;
 	}
 	i = 0;
 	while (i < this->_clients.size())
 	{
+		// std::cout << "/" << std::endl;
 		if (this->_clients[i].getFd() == fd)
 		{
 			this->_clients.erase(this->_clients.begin() + i);
 			break;
 		}
+		i++;
 	}
+	// std::cout << ":" << std::endl;
 }
 
 void	Server::newClient()
@@ -106,6 +111,12 @@ void	Server::newClient()
 		std::cout << "accept() client failed" << std::endl;
 		return;
 	}
+	status = getnameinfo((struct sockaddr *)&cli_addr, len, NULL, 0, cli.getService(), NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);
+	if (status != 0)
+	{
+		std::cout << "getnameinfo() failed" << std::endl;
+		return;
+	}
 	status = fcntl(cli_fd, F_SETFL, O_NONBLOCK);
 	if (status == -1)
 	{
@@ -119,6 +130,7 @@ void	Server::newClient()
 	cli.setIp(inet_ntoa(cli_addr.sin_addr));
 	this->_clients.push_back(cli);
 	this->_pfds.push_back(pfd);
+	cli.sendWelcome(cli_fd);
 }
 
 void	Server::initSocket()
@@ -161,7 +173,7 @@ void	Server::processData(int fd)
 	bytes = recv(fd, buf, 1024, 0);
 	if (bytes <= 0)
 	{
-		std::cout << "recv() failed" << std::endl;
+		std::cout << "recv() failed / client disconnected " << std::endl;
 		removeClient(fd);
 		close(fd);
 		return;
@@ -178,7 +190,6 @@ void	Server::initServer()
 	int	status;
 	size_t	i;
 
-	setPort(4242);
 	initSocket();
 	std::cout << "Server started on port " << getPort() << std::endl;
 	while (!this->_signal)
@@ -189,6 +200,7 @@ void	Server::initServer()
 		i = 0;
 		while (i < this->_pfds.size())
 		{
+			// std::cout << "|" << std::endl;
 			if (this->_pfds[i].revents & POLLIN)	// Vérifie si des données sont disponibles en lecture
 			{
 				if (this->_pfds[i].fd == getFd())
