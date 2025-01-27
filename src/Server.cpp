@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 11:32:15 by afont             #+#    #+#             */
-/*   Updated: 2025/01/24 12:33:09 by afont            ###   ########.fr       */
+/*   Updated: 2025/01/27 14:57:19 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,11 +166,12 @@ void	Server::initSocket()
 
 void	Server::processData(int fd)
 {
-	char	buf[1024];
+	// char	buf[1024];
+	std::string buf(1024, 0);
 	ssize_t	bytes;
 
-	memset(buf, 0, 1024);
-	bytes = recv(fd, buf, 1024, 0);
+	// memset(buf, 0, 1024);
+	bytes = recv(fd, &buf[0], 1024, 0);
 	if (bytes <= 0)
 	{
 		std::cout << "recv() failed / client disconnected " << std::endl;
@@ -180,8 +181,22 @@ void	Server::processData(int fd)
 	}
 	else
 	{
-		buf[bytes] = '\0';
-		std::cout << "Data received: " << buf << std::endl;
+		// buf[bytes] = '\0';
+		// std::cout << "Received bytes: " << bytes << std::endl;
+        // std::cout << "Raw buffer: [" << buf.substr(0, bytes) << "]" << std::endl;
+        // std::cout << "Buffer length: " << buf.length() << std::endl;
+		// std::cout << "Buffer: [" << buf << "]" << std::endl;
+		// std::cout << buf.compare("QUIT :Leaving\r\n") << std::endl;
+		
+        buf = buf.substr(0, bytes);
+		if (buf.compare("QUIT :Leaving\r\n") == 0)
+		{
+			std::cout << "Client disconnected" << std::endl;
+			removeClient(fd);
+			close(fd);
+		}
+		else
+			std::cout << "Data received: " << buf << std::endl;
 	}
 }
 
