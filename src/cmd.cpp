@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dravaono <dravaono@student.42.fr>          +#+  +:+       +#+        */
+/*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:05:17 by dravaono          #+#    #+#             */
-/*   Updated: 2025/01/28 15:24:09 by dravaono         ###   ########.fr       */
+/*   Updated: 2025/01/28 20:43:58 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ std::vector<std::string> split(const std::string& str, char delimiter) {
     return tokens;
 }
 
-std::vector<std::string>    parser(std::string rawCmd)
+std::vector<std::string> parser(std::string rawCmd)
 {
     std::vector<std::string> cmd;
 
