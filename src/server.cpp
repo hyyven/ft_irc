@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dravaono <dravaono@student.42.fr>          +#+  +:+       +#+        */
+/*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 11:32:15 by afont             #+#    #+#             */
-/*   Updated: 2025/01/28 15:22:39 by dravaono         ###   ########.fr       */
+/*   Updated: 2025/01/28 22:32:02 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -194,13 +194,13 @@ void	Server::processData(int fd)
 		// std::cout << buf.compare("QUIT :Leaving\r\n") << std::endl;
 		
         buf = buf.substr(0, bytes);
-		if (buf.compare("QUIT :Leaving\r\n") == 0)
+		if (buf.compare(0, 4, "QUIT") == 0)
 		{
 			std::cout << "Client disconnected" << std::endl;
 			removeClient(fd);
 			close(fd);
 		}
-		else if (buf.compare("JOIN #test\r\n") == 0)
+		else if (buf.compare(0, 4, "JOIN") == 0)
 		{
 			std::cout << "JOIN command received" << std::endl;
 			cmdJoin(fd);
