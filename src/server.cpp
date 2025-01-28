@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Server.cpp                                         :+:      :+:    :+:   */
+/*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
+/*   By: dravaono <dravaono@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 11:32:15 by afont             #+#    #+#             */
-/*   Updated: 2025/01/27 14:57:19 by afont            ###   ########.fr       */
+/*   Updated: 2025/01/28 15:22:39 by dravaono         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/client.hpp"
 #include "../include/server.hpp"
-
+#include "../include/cmd.hpp"
 
 bool Server::_signal = false;
 Server::Server()
@@ -62,7 +62,8 @@ void	Server::closeFd()
 	if (getFd() != -1)
 	{
 		std::cout << "Server closed" << std::endl;
-		close(getFd());
+		if (close(getFd()) == -1)
+			std::cout << "close() failed" << std::endl;
 	}
 }
 
@@ -146,15 +147,15 @@ void	Server::initSocket()
 	setFd(socket(AF_INET, SOCK_STREAM, 0));										//SOCK_STREAM for TCP, 0 for ???
 	if (getFd() == -1)
 		throw std::runtime_error("Error: socket creation failed");
+	status = setsockopt(getFd(), SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));	//set socket options to reuse address
+	if (status == -1)
+		throw std::runtime_error("Error: setsockopt failed");
 	status = bind(getFd(), (struct sockaddr *)&serv_addr, sizeof(serv_addr));	//bind socket to address
 	if (status == -1)
 		throw std::runtime_error("Error: bind failed");
 	status = fcntl(getFd(), F_SETFL, O_NONBLOCK);								//set socket to non-blocking
 	if (status == -1)
 		throw std::runtime_error("Error: fcntl failed");
-	status = setsockopt(getFd(), SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));	//set socket options to reuse address
-	if (status == -1)
-		throw std::runtime_error("Error: setsockopt failed");
 	status = listen(getFd(), SOMAXCONN);										//listen for connections, 4096 clients max
 	if (status == -1)
 		throw std::runtime_error("Error: listen failed");
@@ -179,6 +180,10 @@ void	Server::processData(int fd)
 		close(fd);
 		return;
 	}
+	else if (bytes == 1024)
+	{
+		std::cout << "Buffer full" << std::endl;
+	}
 	else
 	{
 		// buf[bytes] = '\0';
@@ -195,8 +200,16 @@ void	Server::processData(int fd)
 			removeClient(fd);
 			close(fd);
 		}
+		else if (buf.compare("JOIN #test\r\n") == 0)
+		{
+			std::cout << "JOIN command received" << std::endl;
+			cmdJoin(fd);
+		}
 		else
+		{
 			std::cout << "Data received: " << buf << std::endl;
+			parser(buf);
+		}
 	}
 }
 
@@ -215,7 +228,7 @@ void	Server::initServer()
 		i = 0;
 		while (i < this->_pfds.size())
 		{
-			// std::cout << "|" << std::endl;
+			// std::cout << i << std::endl;
 			if (this->_pfds[i].revents & POLLIN)	// Vérifie si des données sont disponibles en lecture
 			{
 				if (this->_pfds[i].fd == getFd())

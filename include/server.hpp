@@ -12,7 +12,7 @@
 
 #pragma once
 #include <vector>
-
+#include "client.hpp"
 
 class	Server
 {
