@@ -6,13 +6,11 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/21 13:34:47 by afont             #+#    #+#             */
-/*   Updated: 2025/01/30 16:06:45 by afont            ###   ########.fr       */
+/*   Updated: 2025/01/30 16:21:25 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/client.hpp"
-#include "../include/server.hpp"
-#include "../include/cmd.hpp"
+#include "../include/all.hpp"
 
 Client::Client()
 {
@@ -24,7 +22,7 @@ Client::~Client()
 
 void	Client::setCliValue(std::string buf)
 {
-	_nickname = "test";
+	_nickname = buf;
 }
 
 void Client::sendWelcome(int cli_fd)

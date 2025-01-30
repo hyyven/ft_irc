@@ -6,11 +6,11 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 12:55:43 by afont             #+#    #+#             */
-/*   Updated: 2025/01/30 16:03:37 by afont            ###   ########.fr       */
+/*   Updated: 2025/01/30 16:17:48 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/utils.hpp"
+#include "../include/all.hpp"
 
 void	parser(int ac, char **av)
 {
@@ -42,7 +42,8 @@ void	parser(int ac, char **av)
 	}
 }
 
-std::vector<std::string> split(const std::string& str, char delimiter) {
+std::vector<std::string> split(const std::string& str, char delimiter)
+{
     std::vector<std::string> tokens;
     std::stringstream ss(str);
     std::string token;

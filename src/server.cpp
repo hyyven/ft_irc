@@ -6,15 +6,11 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 11:32:15 by afont             #+#    #+#             */
-/*   Updated: 2025/01/30 16:09:07 by afont            ###   ########.fr       */
+/*   Updated: 2025/01/30 16:17:37 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/client.hpp"
-#include "../include/server.hpp"
-#include "../include/cmd.hpp"
-#include "../include/utils.hpp"
-#include <algorithm>
+#include "../include/all.hpp"
 
 bool Server::_signal = false;
 Server::Server()

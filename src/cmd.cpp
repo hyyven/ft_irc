@@ -6,11 +6,11 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:05:17 by dravaono          #+#    #+#             */
-/*   Updated: 2025/01/30 16:03:34 by afont            ###   ########.fr       */
+/*   Updated: 2025/01/30 16:16:39 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/cmd.hpp"
+#include "../include/all.hpp"
 
 std::vector<std::string> parser(std::string rawCmd, char delimiteur)
 {

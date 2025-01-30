@@ -6,13 +6,11 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 11:33:57 by afont             #+#    #+#             */
-/*   Updated: 2025/01/30 14:35:31 by afont            ###   ########.fr       */
+/*   Updated: 2025/01/30 16:17:19 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/client.hpp"
-#include "../include/server.hpp"
-#include "../include/utils.hpp"
+#include "../include/all.hpp"
 
 int	main(int ac, char **av)
 {
