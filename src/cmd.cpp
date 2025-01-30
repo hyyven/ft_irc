@@ -3,37 +3,29 @@
 /*                                                        :::      ::::::::   */
 /*   cmd.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:05:17 by dravaono          #+#    #+#             */
-/*   Updated: 2025/01/28 20:43:58 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/01/30 16:03:34 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/cmd.hpp"
 
-std::vector<std::string> split(const std::string& str, char delimiter) {
-    std::vector<std::string> tokens;
-    std::stringstream ss(str);
-    std::string token;
-    
-    while (std::getline(ss, token, delimiter))
-        tokens.push_back(token);
-    return tokens;
-}
-
-std::vector<std::string> parser(std::string rawCmd)
+std::vector<std::string> parser(std::string rawCmd, char delimiteur)
 {
     std::vector<std::string> cmd;
 
-    std::cout << "rawCmd : " << rawCmd << std::endl;
-    cmd = split(rawCmd, ' ');
-    for (std::vector<std::string>::iterator it = cmd.begin(); it != cmd.end(); ++it)
-        std::cout << *it << std::endl;
+    // std::string::iterator new_end = std::remove(rawCmd.begin(), rawCmd.end(), '\n');
+    // rawCmd.erase(new_end, rawCmd.end());
+    // new_end = std::remove(rawCmd.begin(), rawCmd.end(), '\r');
+    // rawCmd.erase(new_end, rawCmd.end());
+    // std::cout << "rawCmd : " << rawCmd << std::endl;
+    cmd = split(rawCmd, delimiteur);
+    // for (std::vector<std::string>::iterator it = cmd.begin(); it != cmd.end(); ++it)
+    //     std::cout << *it << "|";
     return (cmd);
 }
-
-
 
 void cmdJoin(int cliFd)
 {

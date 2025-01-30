@@ -3,17 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dravaono <dravaono@student.42.fr>          +#+  +:+       +#+        */
+/*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:22:29 by dravaono          #+#    #+#             */
-/*   Updated: 2025/01/28 13:42:11 by dravaono         ###   ########.fr       */
+/*   Updated: 2025/01/30 16:06:00 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
-#include <map>
-#include "../include/client.hpp"
-#include "../include/server.hpp"
+#include "all.hpp"
 
 class   Channel
 {

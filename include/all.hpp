@@ -1,16 +1,33 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.hpp                                          :+:      :+:    :+:   */
+/*   all.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/22 12:59:58 by afont             #+#    #+#             */
-/*   Updated: 2025/01/30 16:05:45 by afont            ###   ########.fr       */
+/*   Created: 2025/01/30 16:04:06 by afont             #+#    #+#             */
+/*   Updated: 2025/01/30 16:05:54 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
-#include "all.hpp"
 
-void	parser(int ac, char **av);
+#include "client.hpp"
+#include "server.hpp"
+#include "cmd.hpp"
+#include "utils.hpp"
+#include <string>
+#include <sstream>
+#include <netinet/in.h>
+#include <fcntl.h>
+#include <arpa/inet.h>
+#include <cstring>
+#include <netdb.h>
+#include <algorithm>
+#include <iostream>
+#include <csignal>
+#include <poll.h>
+// #include <sys/socket.h>
+#include <vector>
+#include <cstdlib>
+#include <map>

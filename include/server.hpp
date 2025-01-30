@@ -11,24 +11,21 @@
 /* ************************************************************************** */
 
 #pragma once
-#include <vector>
-#include "client.hpp"
+#include "all.hpp"
 
 class	Server
 {
 	private:
+	public:
 		int							_port;
 		int							_socketFd;
 		static bool					_signal;
 		std::vector<struct pollfd>	_pfds;
 		std::vector<Client>			_clients;
-	public:
+		std::vector<std::string>	_message;
+	
 		Server();
 		~Server();
-		int			getPort();
-		void		setPort(int port);
-		int			getFd();
-		void		setFd(int fd);
 		void		initServer();
 		void		initSocket();
 		void		closeFd();
@@ -36,4 +33,5 @@ class	Server
 		void		processData(int fd);
 		void		removeClient(int fd);
 		static void	signalHandler(int signum);
+		int			getClientIndex(int fd);
 };

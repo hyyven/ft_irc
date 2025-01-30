@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dravaono <dravaono@student.42.fr>          +#+  +:+       +#+        */
+/*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 11:33:57 by afont             #+#    #+#             */
-/*   Updated: 2025/01/28 14:48:08 by dravaono         ###   ########.fr       */
+/*   Updated: 2025/01/30 14:35:31 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ int	main(int ac, char **av)
 	Server	server;
 
 	parser(ac, av);
-	server.setPort(std::atoi(av[1]));
+	server._port = std::atoi(av[1]);
 	try
 	{
 		signal(SIGINT, Server::signalHandler);

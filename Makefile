@@ -25,7 +25,7 @@ $(NAME): $(OBJS)
 	@tput cnorm
 
 run: $(NAME)
-	./$(NAME)
+	./$(NAME) "50001"
 
 clean:
 	@rm -rf $(OBJS) $(OBJ_DIR)

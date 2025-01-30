@@ -11,30 +11,21 @@
 /* ************************************************************************** */
 
 #pragma once
-#include <iostream>
-#include <csignal>
-#include <poll.h>
-// #include <sys/socket.h>
-#include <netinet/in.h>
-#include <fcntl.h>
-#include <arpa/inet.h>
-#include <cstring>
-#include <netdb.h>
+#include "all.hpp"
 
 class	Client
 {
 	private:
+	public:
 		int			_fd;
+		int			_nbMess;
 		std::string	_ip;
 		char		_service[NI_MAXSERV];
-	public:
+		std::string	_nickname;
+		std::string	_username;
+		
 		Client();
 		~Client();
-		int				getFd();
-		void			setFd(int fd);
-		void			setIp(std::string ip);
-		std::string		getIp();
-		char			*getService();
-		void			setService(char *service);
 		void			sendWelcome(int cli_fd);
+		void			setCliValue(std::string buf);
 };

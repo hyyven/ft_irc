@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 12:55:43 by afont             #+#    #+#             */
-/*   Updated: 2025/01/22 13:23:18 by afont            ###   ########.fr       */
+/*   Updated: 2025/01/30 16:03:37 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ void	parser(int ac, char **av)
 {
 	std::string port;
 	std::string::const_iterator it;
-	
+
 	if (ac != 2)
 	{
 		std::cout << "Usage: " << av[0] << " <port>" << std::endl;
@@ -40,4 +40,19 @@ void	parser(int ac, char **av)
 		std::cout << "Invalid port" << std::endl;
 		exit(1);
 	}
+}
+
+std::vector<std::string> split(const std::string& str, char delimiter) {
+    std::vector<std::string> tokens;
+    std::stringstream ss(str);
+    std::string token;
+    
+    std::cout << "Splitting" << std::endl;
+    while (std::getline(ss, token, delimiter))
+    {
+        std::cout << token << "|";
+        tokens.push_back(token);
+    }
+    std::cout << std::endl;
+    return tokens;
 }

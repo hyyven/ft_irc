@@ -3,16 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 11:32:15 by afont             #+#    #+#             */
-/*   Updated: 2025/01/28 22:32:02 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/01/30 16:09:07 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/client.hpp"
 #include "../include/server.hpp"
 #include "../include/cmd.hpp"
+#include "../include/utils.hpp"
+#include <algorithm>
 
 bool Server::_signal = false;
 Server::Server()
@@ -21,26 +23,6 @@ Server::Server()
 
 Server::~Server()
 {
-}
-
-void	Server::setPort(int port)
-{
-	this->_port = port;
-}
-
-int		Server::getPort()
-{
-	return (this->_port);
-}
-
-void	Server::setFd(int fd)
-{
-	this->_socketFd = fd;
-}
-
-int		Server::getFd()
-{
-	return (this->_socketFd);
 }
 
 void	Server::signalHandler(int signum)
@@ -56,13 +38,13 @@ void	Server::closeFd()
 	i = 0;
 	while (i < this->_clients.size())
 	{
-		std::cout << "Client " << this->_clients[i].getIp() << " disconnected" << std::endl;
-		close(this->_clients[i++].getFd());
+		std::cout << "Client " << this->_clients[i]._ip << " disconnected" << std::endl;
+		close(this->_clients[i++]._fd);
 	}
-	if (getFd() != -1)
+	if (_socketFd != -1)
 	{
 		std::cout << "Server closed" << std::endl;
-		if (close(getFd()) == -1)
+		if (close(_socketFd) == -1)
 			std::cout << "close() failed" << std::endl;
 	}
 }
@@ -86,7 +68,7 @@ void	Server::removeClient(int fd)
 	while (i < this->_clients.size())
 	{
 		// std::cout << "/" << std::endl;
-		if (this->_clients[i].getFd() == fd)
+		if (this->_clients[i]._fd == fd)
 		{
 			this->_clients.erase(this->_clients.begin() + i);
 			break;
@@ -106,13 +88,13 @@ void	Server::newClient()
 	int					status;
 
 	len = sizeof(cli_addr);
-	cli_fd = accept(getFd(), (struct sockaddr *)&cli_addr, &len);
+	cli_fd = accept(_socketFd, (struct sockaddr *)&cli_addr, &len);
 	if (cli_fd == -1)
 	{
 		std::cout << "accept() client failed" << std::endl;
 		return;
 	}
-	status = getnameinfo((struct sockaddr *)&cli_addr, len, NULL, 0, cli.getService(), NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);
+	status = getnameinfo((struct sockaddr *)&cli_addr, len, NULL, 0, cli._service, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);
 	if (status != 0)
 	{
 		std::cout << "getnameinfo() failed" << std::endl;
@@ -127,11 +109,14 @@ void	Server::newClient()
 	pfd.fd = cli_fd;
 	pfd.events = POLLIN;
 	pfd.revents = 0;
-	cli.setFd(cli_fd);
-	cli.setIp(inet_ntoa(cli_addr.sin_addr));
+	cli._fd = cli_fd;
+	cli._nbMess = 0;
+	cli._nickname = "Anonymous";
+	cli._username = "Anonymous";
+	cli._ip = inet_ntoa(cli_addr.sin_addr);
 	this->_clients.push_back(cli);
 	this->_pfds.push_back(pfd);
-	cli.sendWelcome(cli_fd);
+	// cli.sendWelcome(cli_fd);
 }
 
 void	Server::initSocket()
@@ -143,46 +128,55 @@ void	Server::initSocket()
 
 	serv_addr.sin_family = AF_INET;												//IPv4
 	serv_addr.sin_addr.s_addr = INADDR_ANY;										//accept only local connections 127.0.0.1
-	serv_addr.sin_port = htons(getPort());										//set port
-	setFd(socket(AF_INET, SOCK_STREAM, 0));										//SOCK_STREAM for TCP, 0 for ???
-	if (getFd() == -1)
+	serv_addr.sin_port = htons(_port);											//set port
+	_socketFd = socket(AF_INET, SOCK_STREAM, 0);								//SOCK_STREAM for TCP, 0 for ???
+	if (_socketFd == -1)
 		throw std::runtime_error("Error: socket creation failed");
-	status = setsockopt(getFd(), SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));	//set socket options to reuse address
+	status = setsockopt(_socketFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));//set socket options to reuse address
 	if (status == -1)
 		throw std::runtime_error("Error: setsockopt failed");
-	status = bind(getFd(), (struct sockaddr *)&serv_addr, sizeof(serv_addr));	//bind socket to address
+	status = bind(_socketFd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));	//bind socket to address
 	if (status == -1)
 		throw std::runtime_error("Error: bind failed");
-	status = fcntl(getFd(), F_SETFL, O_NONBLOCK);								//set socket to non-blocking
+	status = fcntl(_socketFd, F_SETFL, O_NONBLOCK);								//set socket to non-blocking
 	if (status == -1)
 		throw std::runtime_error("Error: fcntl failed");
-	status = listen(getFd(), SOMAXCONN);										//listen for connections, 4096 clients max
+	status = listen(_socketFd, SOMAXCONN);										//listen for connections, 4096 clients max
 	if (status == -1)
 		throw std::runtime_error("Error: listen failed");
-	pfd.fd = getFd();
+	pfd.fd = _socketFd;
 	pfd.events = POLLIN;														// to read data
 	pfd.revents = 0;															// no return events
 	this->_pfds.push_back(pfd);
 }
 
+int	Server::getClientIndex(int fd)
+{
+	size_t	i;
+
+	i = 0;
+	while (i < this->_clients.size())
+	{
+		if (this->_clients[i]._fd == fd)
+			return (i);
+		i++;
+	}
+	return (-1);
+}
+
 void	Server::processData(int fd)
 {
-	// char	buf[1024];
-	std::string buf(1024, 0);
-	ssize_t	bytes;
+	std::string buf(1, 0);
+	size_t	bytes;
+	// size_t	i;	
 
-	// memset(buf, 0, 1024);
-	bytes = recv(fd, &buf[0], 1024, 0);
+	// i = getClientIndex(fd);
+	bytes = recv(fd, &buf[0], 1, 0);
 	if (bytes <= 0)
 	{
 		std::cout << "recv() failed / client disconnected " << std::endl;
 		removeClient(fd);
 		close(fd);
-		return;
-	}
-	else if (bytes == 1024)
-	{
-		std::cout << "Buffer full" << std::endl;
 	}
 	else
 	{
@@ -193,7 +187,6 @@ void	Server::processData(int fd)
 		// std::cout << "Buffer: [" << buf << "]" << std::endl;
 		// std::cout << buf.compare("QUIT :Leaving\r\n") << std::endl;
 		
-        buf = buf.substr(0, bytes);
 		if (buf.compare(0, 4, "QUIT") == 0)
 		{
 			std::cout << "Client disconnected" << std::endl;
@@ -207,8 +200,8 @@ void	Server::processData(int fd)
 		}
 		else
 		{
-			std::cout << "Data received: " << buf << std::endl;
-			parser(buf);
+			std::cout << "Data received: [" << buf << "]" << std::endl;
+			// std::cout << "i: " << i << std::endl;
 		}
 	}
 }
@@ -219,7 +212,7 @@ void	Server::initServer()
 	size_t	i;
 
 	initSocket();
-	std::cout << "Server started on port " << getPort() << std::endl;
+	std::cout << "Server started on port " << _port << std::endl;
 	while (!this->_signal)
 	{
 		status = poll(&this->_pfds[0], this->_pfds.size(), -1);
@@ -231,14 +224,14 @@ void	Server::initServer()
 			// std::cout << i << std::endl;
 			if (this->_pfds[i].revents & POLLIN)	// Vérifie si des données sont disponibles en lecture
 			{
-				if (this->_pfds[i].fd == getFd())
+				if (this->_pfds[i].fd == _socketFd)
 				{
 					newClient();
 					std::cout << "New client connected" << std::endl;
 				}
 				else
 				{
-					std::cout << "Data received from client" << std::endl;
+					// std::cout << "Data received from client" << std::endl;
 					processData(this->_pfds[i].fd);
 				}
 			}
