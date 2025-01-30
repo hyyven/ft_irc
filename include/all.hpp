@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 16:04:06 by afont             #+#    #+#             */
-/*   Updated: 2025/01/30 16:20:57 by afont            ###   ########.fr       */
+/*   Updated: 2025/01/30 17:38:15 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,8 +28,8 @@
 #include <cstdlib>
 #include <map>
 
+#include "cmd.hpp"
 #include "client.hpp"
 #include "server.hpp"
-#include "cmd.hpp"
 #include "utils.hpp"
 #include "channel.hpp"
