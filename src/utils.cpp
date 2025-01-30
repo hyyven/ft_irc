@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 12:55:43 by afont             #+#    #+#             */
-/*   Updated: 2025/01/30 16:17:48 by afont            ###   ########.fr       */
+/*   Updated: 2025/01/30 17:49:51 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,12 +48,46 @@ std::vector<std::string> split(const std::string& str, char delimiter)
     std::stringstream ss(str);
     std::string token;
     
-    std::cout << "Splitting" << std::endl;
+    // std::cout << "Splitting" << std::endl;
     while (std::getline(ss, token, delimiter))
     {
-        std::cout << token << "|";
+        // std::cout << token << "|";
         tokens.push_back(token);
     }
-    std::cout << std::endl;
+    // std::cout << std::endl;
+	// std::cout << "End of split" << std::endl;
     return tokens;
+}
+
+int	parserCmd(t_cmd *dataCmd, std::string buf)
+{
+	static std::string	last_buf;
+
+	if (buf.find('\r') == 0)
+		last_buf = buf;
+	else if (last_buf.find('\r') == 0 && buf.find('\n') == 0)
+	{
+		dataCmd->_cmd = split(dataCmd->_message, ' ');
+		return (1);
+	}
+	else
+	{
+    	dataCmd->_message += buf;
+	}
+	return (0);
+}
+
+
+void	printvector(std::vector<std::string> vec)
+{
+	std::vector<std::string>::iterator it;
+
+	it = vec.begin();
+	std::cout << "Vector: ";
+	while (it != vec.end())
+	{
+		std::cout << *it << "|";
+		it++;
+	}
+	std::cout << std::endl;
 }

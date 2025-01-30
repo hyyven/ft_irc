@@ -6,11 +6,12 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 11:32:15 by afont             #+#    #+#             */
-/*   Updated: 2025/01/30 16:17:37 by afont            ###   ########.fr       */
+/*   Updated: 2025/01/30 17:51:53 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/all.hpp"
+
 
 bool Server::_signal = false;
 Server::Server()
@@ -160,7 +161,7 @@ int	Server::getClientIndex(int fd)
 	return (-1);
 }
 
-void	Server::processData(int fd)
+void	Server::processData(t_cmd *dataCmd, int fd)
 {
 	std::string buf(1, 0);
 	size_t	bytes;
@@ -176,33 +177,20 @@ void	Server::processData(int fd)
 	}
 	else
 	{
-		// buf[bytes] = '\0';
-		// std::cout << "Received bytes: " << bytes << std::endl;
-        // std::cout << "Raw buffer: [" << buf.substr(0, bytes) << "]" << std::endl;
-        // std::cout << "Buffer length: " << buf.length() << std::endl;
-		// std::cout << "Buffer: [" << buf << "]" << std::endl;
-		// std::cout << buf.compare("QUIT :Leaving\r\n") << std::endl;
-		
-		if (buf.compare(0, 4, "QUIT") == 0)
+		// std::cout << "Data received: [" << buf << "]" << std::endl;
+		// std::cout << "i: " << i << std::endl;
+		// _clients[i]._nickname = "Alice";
+		if (parserCmd(dataCmd, buf) == 1) //si c'est la fin du message
 		{
-			std::cout << "Client disconnected" << std::endl;
-			removeClient(fd);
-			close(fd);
-		}
-		else if (buf.compare(0, 4, "JOIN") == 0)
-		{
-			std::cout << "JOIN command received" << std::endl;
-			cmdJoin(fd);
-		}
-		else
-		{
-			std::cout << "Data received: [" << buf << "]" << std::endl;
-			// std::cout << "i: " << i << std::endl;
+			std::cout << "Message: [" << dataCmd->_message << "]" << std::endl;
+			printvector(dataCmd->_cmd);
+			// appel aux commandes ici
+			dataCmd->_message.clear();
 		}
 	}
 }
 
-void	Server::initServer()
+void	Server::initServer(t_cmd *dataCmd)
 {
 	int	status;
 	size_t	i;
@@ -228,7 +216,7 @@ void	Server::initServer()
 				else
 				{
 					// std::cout << "Data received from client" << std::endl;
-					processData(this->_pfds[i].fd);
+					processData(dataCmd, this->_pfds[i].fd);
 				}
 			}
 			i++;

@@ -22,16 +22,17 @@ class	Server
 		static bool					_signal;
 		std::vector<struct pollfd>	_pfds;
 		std::vector<Client>			_clients;
-		std::vector<std::string>	_message;
+		
+		// std::vector<std::string>	_cmd;
 	
 		Server();
 		~Server();
-		void		initServer();
+		int			getClientIndex(int fd);
+		void		initServer(t_cmd *dataCmd);
 		void		initSocket();
 		void		closeFd();
 		void		newClient();
-		void		processData(int fd);
+		void		processData(t_cmd *dataCmd, int fd);
 		void		removeClient(int fd);
 		static void	signalHandler(int signum);
-		int			getClientIndex(int fd);
 };

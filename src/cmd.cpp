@@ -6,26 +6,11 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:05:17 by dravaono          #+#    #+#             */
-/*   Updated: 2025/01/30 16:16:39 by afont            ###   ########.fr       */
+/*   Updated: 2025/01/30 16:32:10 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/all.hpp"
-
-std::vector<std::string> parser(std::string rawCmd, char delimiteur)
-{
-    std::vector<std::string> cmd;
-
-    // std::string::iterator new_end = std::remove(rawCmd.begin(), rawCmd.end(), '\n');
-    // rawCmd.erase(new_end, rawCmd.end());
-    // new_end = std::remove(rawCmd.begin(), rawCmd.end(), '\r');
-    // rawCmd.erase(new_end, rawCmd.end());
-    // std::cout << "rawCmd : " << rawCmd << std::endl;
-    cmd = split(rawCmd, delimiteur);
-    // for (std::vector<std::string>::iterator it = cmd.begin(); it != cmd.end(); ++it)
-    //     std::cout << *it << "|";
-    return (cmd);
-}
 
 void cmdJoin(int cliFd)
 {
