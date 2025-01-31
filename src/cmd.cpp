@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:05:17 by dravaono          #+#    #+#             */
-/*   Updated: 2025/01/31 14:32:53 by afont            ###   ########.fr       */
+/*   Updated: 2025/01/31 15:17:42 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,27 +34,28 @@ void    checkCmd(Client *client, std::vector<std::string> cmd, Server *server)
             server->removeClient(client->_fd);
 		    close(client->_fd);
         }
+        else if (cmd[0] == "JOIN")
+        {
+            cmdJoin(client, cmd[1]);
+        }
     }
 }
 
-void cmdJoin(int cliFd)
+void cmdJoin(Client *cli, std::string channel)
 {
-    int i;
-    std::string mess = ":dravaono!dravaono@127.0.0.1 JOIN #test";
-    i = send(cliFd, mess.c_str(), mess.length(), 0);
-    if (i == -1)
-        std::cout << "send() failed" << std::endl;
-    mess = ":127.0.0.1 332 dravaono #test :Bienvenue sur ce canal!";
-    i = send(cliFd, mess.c_str(), mess.length(), 0);
-    if (i == -1)
-        std::cout << "send() failed" << std::endl;
-    mess = ":127.0.0.1 353 dravaono = #test :Alice Bob Charlie";
-    i = send(cliFd, mess.c_str(), mess.length(), 0);
-    if (i == -1)
-        std::cout << "send() failed" << std::endl;
-    mess = ":127.0.0.1 366 dravaono #test :End of /NAMES list";
-    i = send(cliFd, mess.c_str(), mess.length(), 0);
-    if (i == -1)
-        std::cout << "send() failed" << std::endl;
-    std::cout << "JOIN command sent" << std::endl;
+    int status;
+
+    std::vector<std::string> messages;
+    messages.push_back(":" + cli->_nickname + "!" + cli->_username + "@" + cli->_ip + " JOIN #" + channel + "\r\n");
+    messages.push_back(":server 332 " + cli->_nickname + " #" + channel + " :\r\n");
+    messages.push_back(":server 353 " + cli->_nickname + " = #" + channel + " :" + cli->_nickname + "\r\n");
+    messages.push_back(":server 366 " + cli->_nickname + " #" + channel + " :End of NAMES list\r\n");
+    while (!messages.empty())
+    {
+        // std::cout << messages[0] << "sent" << std::endl;
+        status = send(cli->_fd, messages[0].c_str(), messages[0].length(), 0);
+        if (status == -1)
+            std::cout << "send() failed" << std::endl;
+        messages.erase(messages.begin());
+    }
 }

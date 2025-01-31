@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:06:00 by dravaono          #+#    #+#             */
-/*   Updated: 2025/01/31 14:31:05 by afont            ###   ########.fr       */
+/*   Updated: 2025/01/31 15:07:10 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,5 +19,5 @@ typedef struct s_cmd
 	std::vector<std::string>	_cmd;
 }	t_cmd;
 
-void	cmdJoin(int cliFd);
+void	cmdJoin(Client *client, std::string channel);
 void    checkCmd(Client *client, std::vector<std::string> cmd, Server *server);
