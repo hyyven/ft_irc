@@ -26,6 +26,6 @@ class	Client
 		
 		Client();
 		~Client();
-		void			sendWelcome(int cli_fd);
+		void			sendWelcome();
 		void			setCliValue(std::string buf);
 };
