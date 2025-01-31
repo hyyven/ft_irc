@@ -6,11 +6,36 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:05:17 by dravaono          #+#    #+#             */
-/*   Updated: 2025/01/30 16:32:10 by afont            ###   ########.fr       */
+/*   Updated: 2025/01/31 14:32:53 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/all.hpp"
+
+void    checkCmd(Client *client, std::vector<std::string> cmd, Server *server)
+{
+    size_t size;
+
+    size = cmd.size();                      // protection segfault
+    if (size >= 2)
+    {
+        if (cmd[0] == "NICK")
+        {
+            client->_nickname = cmd[1];
+        }
+        else if (cmd[0] == "USER")
+        {
+            client->_username = cmd[1];
+            client->sendWelcome();
+        }
+        else if (cmd[0] == "QUIT" && cmd[1] == ":Leaving")
+        {
+            std::cout << "Client " << client->_nickname << " disconnected" << std::endl;
+            server->removeClient(client->_fd);
+		    close(client->_fd);
+        }
+    }
+}
 
 void cmdJoin(int cliFd)
 {

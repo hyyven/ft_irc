@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/21 13:34:47 by afont             #+#    #+#             */
-/*   Updated: 2025/01/30 16:21:25 by afont            ###   ########.fr       */
+/*   Updated: 2025/01/31 14:12:54 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,32 +20,21 @@ Client::~Client()
 {
 }
 
-void	Client::setCliValue(std::string buf)
+void Client::sendWelcome()
 {
-	_nickname = buf;
-}
-
-void Client::sendWelcome(int cli_fd)
-{
-    std::string nickname = _nickname;
+    int status;
     
-    // RPL_WELCOME (001)
-    std::string welcome = ":server 001 " + nickname + " :Welcome to the IRC Network " 
-                         + nickname + "!" + nickname + "@" + _ip + "\r\n";
-    send(cli_fd, welcome.c_str(), welcome.length(), 0);
+    std::vector<std::string> messages;
+    messages.push_back(":server 001 " + _nickname + " :Welcome to the " + SERVER_NAME + " Network " + _nickname + "!" + _username + "@" + _ip + "\r\n");
+    messages.push_back(":server 002 " + _nickname + " :Your host is " + _ip + ", running version " + VERSION + "\r\n");
+    messages.push_back(":server 003 " + _nickname + " :This server was created " + __DATE__ + " " + __TIME__ + "\r\n");
+    messages.push_back(":server 004 " + _nickname + " " + _ip + " " + VERSION + " None it kol\r\n");
     
-    // RPL_YOURHOST (002)
-    std::string yourhost = ":server 002 " + nickname + " :Your host is " + _ip 
-                          + ", running version ft_irc-1.0\r\n";
-    send(cli_fd, yourhost.c_str(), yourhost.length(), 0);
-    
-    // RPL_CREATED (003)
-    std::string created = ":server 003 " + nickname + " :This server was created "
-                         + __DATE__ + " " + __TIME__ + "\r\n";
-    send(cli_fd, created.c_str(), created.length(), 0);
-    
-    // RPL_MYINFO (004)
-    std::string myinfo = ":server 004 " + nickname + " " + _ip 
-                        + " ft_irc-1.0 DOv woOv itkl\r\n";
-    send(cli_fd, myinfo.c_str(), myinfo.length(), 0);
+    while (!messages.empty())
+    {
+        status = send(_fd, messages[0].c_str(), messages[0].length(), 0);
+        if (status == -1)
+            std::cout << "send() failed" << std::endl;
+        messages.erase(messages.begin());
+    }
 }

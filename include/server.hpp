@@ -23,8 +23,6 @@ class	Server
 		std::vector<struct pollfd>	_pfds;
 		std::vector<Client>			_clients;
 		
-		// std::vector<std::string>	_cmd;
-	
 		Server();
 		~Server();
 		int			getClientIndex(int fd);

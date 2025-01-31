@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 11:32:15 by afont             #+#    #+#             */
-/*   Updated: 2025/01/30 17:51:53 by afont            ###   ########.fr       */
+/*   Updated: 2025/01/31 14:23:53 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,12 +108,12 @@ void	Server::newClient()
 	pfd.revents = 0;
 	cli._fd = cli_fd;
 	cli._nbMess = 0;
-	cli._nickname = "Anonymous";
-	cli._username = "Anonymous";
+	cli._nickname = "Unknown";
+	cli._username = "Unknown";
 	cli._ip = inet_ntoa(cli_addr.sin_addr);
 	this->_clients.push_back(cli);
 	this->_pfds.push_back(pfd);
-	// cli.sendWelcome(cli_fd);
+	// cli.sendWelcome();
 }
 
 void	Server::initSocket()
@@ -165,9 +165,9 @@ void	Server::processData(t_cmd *dataCmd, int fd)
 {
 	std::string buf(1, 0);
 	size_t	bytes;
-	// size_t	i;	
+	size_t	i;	
 
-	// i = getClientIndex(fd);
+	i = getClientIndex(fd);
 	bytes = recv(fd, &buf[0], 1, 0);
 	if (bytes <= 0)
 	{
@@ -183,7 +183,8 @@ void	Server::processData(t_cmd *dataCmd, int fd)
 		if (parserCmd(dataCmd, buf) == 1) //si c'est la fin du message
 		{
 			std::cout << "Message: [" << dataCmd->_message << "]" << std::endl;
-			printvector(dataCmd->_cmd);
+			// printvector(dataCmd->_cmd);
+			checkCmd(&_clients[i], dataCmd->_cmd, this);
 			// appel aux commandes ici
 			dataCmd->_message.clear();
 		}

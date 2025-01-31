@@ -6,11 +6,16 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 16:04:06 by afont             #+#    #+#             */
-/*   Updated: 2025/01/30 17:38:15 by afont            ###   ########.fr       */
+/*   Updated: 2025/01/31 14:29:27 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+
+
+#define SERVER_NAME "ft_irc"
+#define VERSION "ft_irc-1.0"
+
 
 #include <string>
 #include <sstream>
@@ -28,8 +33,12 @@
 #include <cstdlib>
 #include <map>
 
-#include "cmd.hpp"
+class Server;
+class Client;
+class Channel;
+
 #include "client.hpp"
+#include "cmd.hpp"
 #include "server.hpp"
 #include "utils.hpp"
 #include "channel.hpp"
