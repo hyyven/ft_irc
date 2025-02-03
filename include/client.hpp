@@ -28,4 +28,6 @@ class	Client
 		~Client();
 		void			sendWelcome();
 		void			setCliValue(std::string buf);
+		void			sendMessage(const std::string& message) const;
+		void			sendMessageToChannel(const std::string& message, const std::vector<Client>& clients);
 };

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
+/*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:05:17 by dravaono          #+#    #+#             */
-/*   Updated: 2025/01/31 15:17:42 by afont            ###   ########.fr       */
+/*   Updated: 2025/02/03 01:20:39 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,48 +14,50 @@
 
 void    checkCmd(Client *client, std::vector<std::string> cmd, Server *server)
 {
-    size_t size;
+	size_t size;
 
-    size = cmd.size();                      // protection segfault
-    if (size >= 2)
-    {
-        if (cmd[0] == "NICK")
-        {
-            client->_nickname = cmd[1];
-        }
-        else if (cmd[0] == "USER")
-        {
-            client->_username = cmd[1];
-            client->sendWelcome();
-        }
-        else if (cmd[0] == "QUIT" && cmd[1] == ":Leaving")
-        {
-            std::cout << "Client " << client->_nickname << " disconnected" << std::endl;
-            server->removeClient(client->_fd);
-		    close(client->_fd);
-        }
-        else if (cmd[0] == "JOIN")
-        {
-            cmdJoin(client, cmd[1]);
-        }
-    }
+	size = cmd.size();                      // protection segfault
+	if (size >= 2)
+	{
+		if (cmd[0] == "NICK")
+		{
+			client->_nickname = cmd[1];
+		}
+		else if (cmd[0] == "USER")
+		{
+			client->_username = cmd[1];
+			client->sendWelcome();
+		}
+		else if (cmd[0] == "QUIT" && cmd[1] == ":Leaving")
+		{
+			std::cout << "Client " << client->_nickname << " disconnected" << std::endl;
+			server->removeClient(client->_fd);
+			close(client->_fd);
+		}
+		else if (cmd[0] == "JOIN" && cmd[1][0] != '#')
+		{
+			std::string mess = cmd[1] + " :No such channel" + "\r\n";
+			send(client->_fd, mess.c_str(), mess.length(), 0);
+		}
+		else if (cmd[0] == "JOIN" && cmd[1][0] == '#')
+		{
+			cmdJoin(client, cmd[1]);
+		}
+	}
 }
 
 void cmdJoin(Client *cli, std::string channel)
 {
-    int status;
+	static Channel channelManager;
+	std::string joinMessage = ":" + cli->_nickname + "!" + cli->_username + "@" + cli->_ip + " JOIN " + channel + "\r\n";
 
-    std::vector<std::string> messages;
-    messages.push_back(":" + cli->_nickname + "!" + cli->_username + "@" + cli->_ip + " JOIN #" + channel + "\r\n");
-    messages.push_back(":server 332 " + cli->_nickname + " #" + channel + " :\r\n");
-    messages.push_back(":server 353 " + cli->_nickname + " = #" + channel + " :" + cli->_nickname + "\r\n");
-    messages.push_back(":server 366 " + cli->_nickname + " #" + channel + " :End of NAMES list\r\n");
-    while (!messages.empty())
-    {
-        // std::cout << messages[0] << "sent" << std::endl;
-        status = send(cli->_fd, messages[0].c_str(), messages[0].length(), 0);
-        if (status == -1)
-            std::cout << "send() failed" << std::endl;
-        messages.erase(messages.begin());
-    }
+	if (channelManager.channelExists(channel))
+		cli->sendMessageToChannel(joinMessage, channelManager.getChannelClients(channel));
+
+	channelManager.createChannel(channel, *cli);
+
+	cli->sendMessage(joinMessage);
+	cli->sendMessage(":server 332 " + cli->_nickname + " " + channel + " :\r\n");
+	cli->sendMessage(":server 353 " + cli->_nickname + " = " + channel + " :" + channelManager.getChannelUsers(channel) + "\r\n");
+	cli->sendMessage(":server 366 " + cli->_nickname + " " + channel + " :End of NAMES list\r\n");
 }
