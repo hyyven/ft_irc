@@ -24,8 +24,8 @@ $(NAME): $(OBJS)
 	@echo -n "   \033[37;46;1m$(NAME) created\033[0m\n"
 	@tput cnorm
 
-run: $(NAME)
-	./$(NAME) "50001"
+run: fclean all
+	./$(NAME) "50001" "pass"
 
 clean:
 	@rm -rf $(OBJS) $(OBJ_DIR)

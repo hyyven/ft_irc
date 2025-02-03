@@ -6,23 +6,25 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 12:55:43 by afont             #+#    #+#             */
-/*   Updated: 2025/01/30 17:49:51 by afont            ###   ########.fr       */
+/*   Updated: 2025/02/03 16:55:35 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/all.hpp"
 
-void	parser(int ac, char **av)
+void	parse_argv(Server *server, int ac, char **av)
 {
-	std::string port;
 	std::string::const_iterator it;
+	std::string 				port;
+	std::string					password;
 
-	if (ac != 2)
+	if (ac != 3)
 	{
-		std::cout << "Usage: " << av[0] << " <port>" << std::endl;
+		std::cout << "Usage: " << av[0] << " <port> <password>" << std::endl;
 		exit(1);
 	}
 	port = av[1];
+	password = av[2];
 	it = port.begin();
 	while (it != port.end() && std::isdigit(*it))
 		++it;
@@ -40,6 +42,16 @@ void	parser(int ac, char **av)
 		std::cout << "Invalid port" << std::endl;
 		exit(1);
 	}
+	it = password.begin();
+	while (it != password.end() && std::isalnum(*it))
+		++it;
+	if (password.empty() || it != password.end())
+	{
+		std::cout << "Password must be alphanumeric" << std::endl;
+		exit(1);
+	}
+	else
+		server->_password = password;
 }
 
 std::vector<std::string> split(const std::string& str, char delimiter)
