@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 11:32:15 by afont             #+#    #+#             */
-/*   Updated: 2025/01/31 14:23:53 by afont            ###   ########.fr       */
+/*   Updated: 2025/02/03 18:45:39 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,6 +110,7 @@ void	Server::newClient()
 	cli._nbMess = 0;
 	cli._nickname = "Unknown";
 	cli._username = "Unknown";
+	cli._isRegistered = false;
 	cli._ip = inet_ntoa(cli_addr.sin_addr);
 	this->_clients.push_back(cli);
 	this->_pfds.push_back(pfd);

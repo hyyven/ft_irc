@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:05:17 by dravaono          #+#    #+#             */
-/*   Updated: 2025/02/03 01:20:39 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/02/03 18:53:16 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,22 @@ void    checkCmd(Client *client, std::vector<std::string> cmd, Server *server)
 {
 	size_t size;
 
-	size = cmd.size();                      // protection segfault
+	size = cmd.size(); 	                    // protection segfault
+	if (size >= 1)
+	{
+		if (cmd[0] == "PASS")
+		{
+			verifyPassword(cmd, server, client);
+		}
+	}
 	if (size >= 2)
 	{
+		if ((cmd[0] == "NICK" || cmd[0] == "USER") && !client->_isRegistered)
+		{
+			client->sendMessage(":server 464 " + client->_nickname + " :Password required\r\n");
+			server->removeClient(client->_fd);
+			close(client->_fd);
+		}
 		if (cmd[0] == "NICK")
 		{
 			client->_nickname = cmd[1];
@@ -26,7 +39,8 @@ void    checkCmd(Client *client, std::vector<std::string> cmd, Server *server)
 		else if (cmd[0] == "USER")
 		{
 			client->_username = cmd[1];
-			client->sendWelcome();
+			if (client->_isRegistered)
+				client->sendWelcome();
 		}
 		else if (cmd[0] == "QUIT" && cmd[1] == ":Leaving")
 		{
@@ -56,8 +70,32 @@ void cmdJoin(Client *cli, std::string channel)
 
 	channelManager.createChannel(channel, *cli);
 
+	std::cout << "test" << std::endl;
 	cli->sendMessage(joinMessage);
 	cli->sendMessage(":server 332 " + cli->_nickname + " " + channel + " :\r\n");
 	cli->sendMessage(":server 353 " + cli->_nickname + " = " + channel + " :" + channelManager.getChannelUsers(channel) + "\r\n");
 	cli->sendMessage(":server 366 " + cli->_nickname + " " + channel + " :End of NAMES list\r\n");
+}
+
+void	verifyPassword(std::vector<std::string> cmd, Server *serv, Client *cli)
+{
+	if (cli->_isRegistered)
+		cli->sendMessage(":server 462 " + cli->_nickname + " :You may not reregister\r\n");
+	else if (cmd.size() != 2)
+	{
+		cli->sendMessage(":server 461 " + cli->_nickname + " PASS :Not enough parameters\r\n");
+		serv->removeClient(cli->_fd);
+		close(cli->_fd);
+	}
+	else if (cmd[1] != serv->_password)
+	{
+		cli->sendMessage(":server 464 " + cli->_nickname + " :Password incorrect\r\n");
+		serv->removeClient(cli->_fd);
+		close(cli->_fd);
+	}
+	else
+	{
+		cli->_isRegistered = true;
+		// cli->sendWelcome();
+	}
 }
