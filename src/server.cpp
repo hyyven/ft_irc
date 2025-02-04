@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 11:32:15 by afont             #+#    #+#             */
-/*   Updated: 2025/02/03 18:45:39 by afont            ###   ########.fr       */
+/*   Updated: 2025/02/04 15:27:46 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,12 +91,6 @@ void	Server::newClient()
 		std::cout << "accept() client failed" << std::endl;
 		return;
 	}
-	status = getnameinfo((struct sockaddr *)&cli_addr, len, NULL, 0, cli._service, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);
-	if (status != 0)
-	{
-		std::cout << "getnameinfo() failed" << std::endl;
-		return;
-	}
 	status = fcntl(cli_fd, F_SETFL, O_NONBLOCK);
 	if (status == -1)
 	{
@@ -107,7 +101,6 @@ void	Server::newClient()
 	pfd.events = POLLIN;
 	pfd.revents = 0;
 	cli._fd = cli_fd;
-	cli._nbMess = 0;
 	cli._nickname = "Unknown";
 	cli._username = "Unknown";
 	cli._isRegistered = false;

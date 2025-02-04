@@ -19,8 +19,6 @@ class	Client
 	public:
 		bool		_isRegistered;
 		int			_fd;
-		int			_nbMess;
-		char		_service[NI_MAXSERV];
 		std::string	_ip;
 		std::string	_nickname;
 		std::string	_username;
