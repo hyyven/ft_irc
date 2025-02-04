@@ -6,13 +6,13 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:05:17 by dravaono          #+#    #+#             */
-/*   Updated: 2025/02/03 18:53:16 by afont            ###   ########.fr       */
+/*   Updated: 2025/02/04 15:54:22 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/all.hpp"
 
-void    checkCmd(Client *client, std::vector<std::string> cmd, Server *server)
+void    checkCmd(Client *cli, std::vector<std::string> cmd, Server *server)
 {
 	size_t size;
 
@@ -21,41 +21,48 @@ void    checkCmd(Client *client, std::vector<std::string> cmd, Server *server)
 	{
 		if (cmd[0] == "PASS")
 		{
-			verifyPassword(cmd, server, client);
+			verifyPassword(cmd, server, cli);
 		}
 	}
 	if (size >= 2)
 	{
-		if ((cmd[0] == "NICK" || cmd[0] == "USER") && !client->_isRegistered)
+		if ((cmd[0] == "NICK" || cmd[0] == "USER") && !cli->_isRegistered)
 		{
-			client->sendMessage(":server 464 " + client->_nickname + " :Password required\r\n");
-			server->removeClient(client->_fd);
-			close(client->_fd);
+			cli->sendMessage(":server 464 " + cli->_nickname + " :Password required\r\n");
+			server->removeClient(cli->_fd);
+			close(cli->_fd);
 		}
-		if (cmd[0] == "NICK")
+		else if (cmd[0] == "NICK")
 		{
-			client->_nickname = cmd[1];
+			if (cli->_nickname != "Unknown")
+			{
+				cli->sendMessage(":" + cli->_nickname + "!" + cli->_username + "@" + cli->_ip + " NICK :" + cmd[1] + "\r\n");
+			}
+			cli->_nickname = cmd[1];
 		}
 		else if (cmd[0] == "USER")
 		{
-			client->_username = cmd[1];
-			if (client->_isRegistered)
-				client->sendWelcome();
+			cli->_username = cmd[1];
+			if (cli->_isRegistered)
+			{
+				// cli->sendMessage(": 433 USER: Nickname already taken.\r\n");
+				cli->sendWelcome();
+			}
 		}
 		else if (cmd[0] == "QUIT" && cmd[1] == ":Leaving")
 		{
-			std::cout << "Client " << client->_nickname << " disconnected" << std::endl;
-			server->removeClient(client->_fd);
-			close(client->_fd);
+			std::cout << "Client " << cli->_nickname << " disconnected" << std::endl;
+			server->removeClient(cli->_fd);
+			close(cli->_fd);
 		}
 		else if (cmd[0] == "JOIN" && cmd[1][0] != '#')
 		{
 			std::string mess = cmd[1] + " :No such channel" + "\r\n";
-			send(client->_fd, mess.c_str(), mess.length(), 0);
+			send(cli->_fd, mess.c_str(), mess.length(), 0);
 		}
 		else if (cmd[0] == "JOIN" && cmd[1][0] == '#')
 		{
-			cmdJoin(client, cmd[1]);
+			cmdJoin(cli, cmd[1]);
 		}
 	}
 }
@@ -70,7 +77,6 @@ void cmdJoin(Client *cli, std::string channel)
 
 	channelManager.createChannel(channel, *cli);
 
-	std::cout << "test" << std::endl;
 	cli->sendMessage(joinMessage);
 	cli->sendMessage(":server 332 " + cli->_nickname + " " + channel + " :\r\n");
 	cli->sendMessage(":server 353 " + cli->_nickname + " = " + channel + " :" + channelManager.getChannelUsers(channel) + "\r\n");
@@ -96,6 +102,5 @@ void	verifyPassword(std::vector<std::string> cmd, Server *serv, Client *cli)
 	else
 	{
 		cli->_isRegistered = true;
-		// cli->sendWelcome();
 	}
 }
