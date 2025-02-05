@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   server.cpp                                         :+:      :+:    :+:   */
+/*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 11:32:15 by afont             #+#    #+#             */
-/*   Updated: 2025/02/05 12:02:41 by afont            ###   ########.fr       */
+/*   Updated: 2025/02/05 13:23:41 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ void	Server::closeFd()
 	i = 0;
 	while (i < this->_clients.size())
 	{
-		std::cout << "Client " << this->_clients[i]._ip << " disconnected" << std::endl;
+		std::cout << "Client " << this->_clients[i]._nickname << " disconnected" << std::endl;
 		close(this->_clients[i++]._fd);
 	}
 	if (_socketFd != -1)
@@ -172,17 +172,18 @@ void	Server::processData(t_cmd *dataCmd, int fd)
 	if (bytes <= 0)
 	{
 		std::cout << "recv() failed / client disconnected " << std::endl;
-		removeClient(fd);
 		close(fd);
+		removeClient(fd);
 	}
 	else
 	{
 		// std::cout << "Data received: [" << buf << "]" << std::endl;
-		// std::cout << "i: " << i << std::endl;
+			// std::cout << "i: " << i << std::endl;
 		// _clients[i]._nickname = "Alice";
 		if (parserCmd(dataCmd, buf) == 1) //si c'est la fin du message
 		{
 			std::cout << "Message: [" << dataCmd->_message << "]" << std::endl;
+			std::cout << "i: " << i << std::endl;
 			// printvector(dataCmd->_cmd);
 			checkCmd(&_clients[i], dataCmd->_cmd, this);
 			// appel aux commandes ici

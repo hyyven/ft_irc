@@ -23,6 +23,7 @@ class	Server
 		std::string					_password;
 		std::vector<struct pollfd>	_pfds;
 		std::vector<Client>			_clients;
+		Channel						_channelManager;
 		
 		Server();
 		~Server();

@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 12:55:43 by afont             #+#    #+#             */
-/*   Updated: 2025/02/05 11:55:06 by afont            ###   ########.fr       */
+/*   Updated: 2025/02/05 12:44:12 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,7 +123,6 @@ void	tryWelcome(Client *cli)
 	// std::cout << cli->_fd << std::endl;
 	if (cli->_nickname != "Unknown" && cli->_username != "Unknown" && cli->_isWelcomed == false)
 	{
-		std::cout << "testestse" << std::endl;
 		cli->sendWelcome();
 		cli->_isWelcomed = true;
 	}

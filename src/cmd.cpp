@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:05:17 by dravaono          #+#    #+#             */
-/*   Updated: 2025/02/05 11:40:59 by afont            ###   ########.fr       */
+/*   Updated: 2025/02/05 13:23:18 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,8 @@ void    checkCmd(Client *cli, std::vector<std::string> cmd, Server *server)
 		if ((cmd[0] == "NICK" || cmd[0] == "USER") && !cli->_isRegistered)
 		{
 			cli->sendMessage(":server 464 " + cli->_nickname + " :Password required\r\n");
-			server->removeClient(cli->_fd);
 			close(cli->_fd);
+			server->removeClient(cli->_fd);
 		}
 		else if (cmd[0] == "NICK")
 		{
@@ -41,6 +41,7 @@ void    checkCmd(Client *cli, std::vector<std::string> cmd, Server *server)
 			else if (cli->_nickname != "Unknown")
 			{
 				//changement de nickname
+				// sendNickChangeNotification(cli, cmd[1], server);
 				cli->sendMessage(":" + cli->_nickname + "!" + cli->_username + "@" + cli->_ip + " NICK :" + cmd[1] + "\r\n");
 				cli->_nickname = cmd[1];
 			}
@@ -56,8 +57,8 @@ void    checkCmd(Client *cli, std::vector<std::string> cmd, Server *server)
 		else if (cmd[0] == "QUIT" && cmd[1] == ":Leaving")
 		{
 			std::cout << "Client " << cli->_nickname << " disconnected" << std::endl;
-			server->removeClient(cli->_fd);
 			close(cli->_fd);
+			server->removeClient(cli->_fd);
 		}
 		else if (cmd[0] == "JOIN" && cmd[1][0] != '#')
 		{
@@ -66,24 +67,24 @@ void    checkCmd(Client *cli, std::vector<std::string> cmd, Server *server)
 		}
 		else if (cmd[0] == "JOIN" && cmd[1][0] == '#')
 		{
-			cmdJoin(cli, cmd[1]);
+			cmdJoin(cli, cmd[1], server);
 		}
 	}
 }
 
-void cmdJoin(Client *cli, std::string channel)
+void cmdJoin(Client *cli, std::string channel, Server *serv)
 {
-	static Channel channelManager;
+	// static Channel channelManager;
 	std::string joinMessage = ":" + cli->_nickname + "!" + cli->_username + "@" + cli->_ip + " JOIN " + channel + "\r\n";
 
-	if (channelManager.channelExists(channel))
-		cli->sendMessageToChannel(joinMessage, channelManager.getChannelClients(channel));
+	if (serv->_channelManager.channelExists(channel))
+		cli->sendMessageToChannel(joinMessage, serv->_channelManager.getChannelClients(channel));
 
-	channelManager.createChannel(channel, *cli);
+	serv->_channelManager.createChannel(channel, *cli);
 
 	cli->sendMessage(joinMessage);
 	cli->sendMessage(":server 332 " + cli->_nickname + " " + channel + " :\r\n");
-	cli->sendMessage(":server 353 " + cli->_nickname + " = " + channel + " :" + channelManager.getChannelUsers(channel) + "\r\n");
+	cli->sendMessage(":server 353 " + cli->_nickname + " = " + channel + " :" + serv->_channelManager.getChannelUsers(channel) + "\r\n");
 	cli->sendMessage(":server 366 " + cli->_nickname + " " + channel + " :End of NAMES list\r\n");
 }
 
@@ -94,14 +95,14 @@ void	verifyPassword(std::vector<std::string> cmd, Server *serv, Client *cli)
 	else if (cmd.size() != 2)
 	{
 		cli->sendMessage(":server 461 " + cli->_nickname + " PASS :Not enough parameters\r\n");
-		serv->removeClient(cli->_fd);
 		close(cli->_fd);
+		serv->removeClient(cli->_fd);
 	}
 	else if (cmd[1] != serv->_password)
 	{
 		cli->sendMessage(":server 464 " + cli->_nickname + " :Password incorrect\r\n");
-		serv->removeClient(cli->_fd);
 		close(cli->_fd);
+		serv->removeClient(cli->_fd);
 	}
 	else
 	{
