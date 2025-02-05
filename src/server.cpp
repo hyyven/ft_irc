@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 11:32:15 by afont             #+#    #+#             */
-/*   Updated: 2025/02/05 13:23:41 by afont            ###   ########.fr       */
+/*   Updated: 2025/02/05 13:37:55 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,7 +183,7 @@ void	Server::processData(t_cmd *dataCmd, int fd)
 		if (parserCmd(dataCmd, buf) == 1) //si c'est la fin du message
 		{
 			std::cout << "Message: [" << dataCmd->_message << "]" << std::endl;
-			std::cout << "i: " << i << std::endl;
+			// std::cout << "i: " << i << std::endl;
 			// printvector(dataCmd->_cmd);
 			checkCmd(&_clients[i], dataCmd->_cmd, this);
 			// appel aux commandes ici
