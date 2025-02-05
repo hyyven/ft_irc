@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
+/*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:06:00 by dravaono          #+#    #+#             */
-/*   Updated: 2025/02/03 17:33:20 by afont            ###   ########.fr       */
+/*   Updated: 2025/02/05 12:50:30 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,3 +22,4 @@ typedef struct s_cmd
 void	cmdJoin(Client *client, std::string channel);
 void    checkCmd(Client *client, std::vector<std::string> cmd, Server *server);
 void	verifyPassword(std::vector<std::string> cmd, Server *serv, Client *cli);
+void    cmdPrivmsg(Client *sender, const std::string& target, const std::string& message, Server *server);
