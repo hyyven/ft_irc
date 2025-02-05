@@ -6,7 +6,7 @@
 /*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:06:00 by dravaono          #+#    #+#             */
-/*   Updated: 2025/02/03 00:13:19 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/02/05 01:22:55 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,3 +21,4 @@ typedef struct s_cmd
 
 void	cmdJoin(Client *client, std::string channel);
 void    checkCmd(Client *client, std::vector<std::string> cmd, Server *server);
+void    cmdPrivmsg(Client *sender, const std::string& target, const std::string& message, Server *server);

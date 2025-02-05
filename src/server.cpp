@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
+/*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 11:32:15 by afont             #+#    #+#             */
-/*   Updated: 2025/01/31 14:23:53 by afont            ###   ########.fr       */
+/*   Updated: 2025/02/04 19:30:59 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,12 +89,6 @@ void	Server::newClient()
 	if (cli_fd == -1)
 	{
 		std::cout << "accept() client failed" << std::endl;
-		return;
-	}
-	status = getnameinfo((struct sockaddr *)&cli_addr, len, NULL, 0, cli._service, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);
-	if (status != 0)
-	{
-		std::cout << "getnameinfo() failed" << std::endl;
 		return;
 	}
 	status = fcntl(cli_fd, F_SETFL, O_NONBLOCK);
