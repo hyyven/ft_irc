@@ -6,7 +6,7 @@
 /*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 11:32:15 by afont             #+#    #+#             */
-/*   Updated: 2025/02/04 19:30:59 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/02/05 02:21:02 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,9 +101,9 @@ void	Server::newClient()
 	pfd.events = POLLIN;
 	pfd.revents = 0;
 	cli._fd = cli_fd;
-	cli._nbMess = 0;
 	cli._nickname = "Unknown";
 	cli._username = "Unknown";
+	cli._isRegistered = false;
 	cli._ip = inet_ntoa(cli_addr.sin_addr);
 	this->_clients.push_back(cli);
 	this->_pfds.push_back(pfd);

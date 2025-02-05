@@ -6,9 +6,10 @@
 /*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:27:39 by dravaono          #+#    #+#             */
-/*   Updated: 2025/02/04 20:14:33 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/02/05 02:10:45 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #include "../include/all.hpp"
 
@@ -18,11 +19,13 @@ Channel::~Channel() {}
 
 void Channel::createChannel(std::string channelName, Client client)
 {
+	// if (!channelExists(channelName))
 	if (_Channel.find(channelName) == _Channel.end())
 	{
-		std::vector<Client> newChannel;
-		newChannel.push_back(client);
-		_Channel[channelName] = newChannel;
+		_Channel[channelName].push_back(client);
+		// std::vector<Client> newChannel;
+		// newChannel.push_back(client);
+		// _Channel[channelName] = newChannel;
 	}
 	else
 	{
