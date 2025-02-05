@@ -18,6 +18,7 @@ class	Client
 	private:
 	public:
 		bool		_isRegistered;
+		bool		_isWelcomed;
 		int			_fd;
 		std::string	_ip;
 		std::string	_nickname;

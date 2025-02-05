@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 12:55:43 by afont             #+#    #+#             */
-/*   Updated: 2025/02/03 16:55:35 by afont            ###   ########.fr       */
+/*   Updated: 2025/02/05 11:55:06 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,4 +102,29 @@ void	printvector(std::vector<std::string> vec)
 		it++;
 	}
 	std::cout << std::endl;
+}
+
+int	nickExists(std::string nickname, Server *server)
+{
+	std::vector<Client>::iterator it;
+
+	it = server->_clients.begin();
+	while (it != server->_clients.end())
+	{
+		if (it->_nickname == nickname)
+			return (1);
+		it++;
+	}
+	return (0);
+}
+
+void	tryWelcome(Client *cli)
+{
+	// std::cout << cli->_fd << std::endl;
+	if (cli->_nickname != "Unknown" && cli->_username != "Unknown" && cli->_isWelcomed == false)
+	{
+		std::cout << "testestse" << std::endl;
+		cli->sendWelcome();
+		cli->_isWelcomed = true;
+	}
 }

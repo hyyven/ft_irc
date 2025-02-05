@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 11:32:15 by afont             #+#    #+#             */
-/*   Updated: 2025/02/04 15:27:46 by afont            ###   ########.fr       */
+/*   Updated: 2025/02/05 12:02:41 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,6 +104,7 @@ void	Server::newClient()
 	cli._nickname = "Unknown";
 	cli._username = "Unknown";
 	cli._isRegistered = false;
+	cli._isWelcomed = false;
 	cli._ip = inet_ntoa(cli_addr.sin_addr);
 	this->_clients.push_back(cli);
 	this->_pfds.push_back(pfd);
@@ -162,6 +163,11 @@ void	Server::processData(t_cmd *dataCmd, int fd)
 	size_t	i;	
 
 	i = getClientIndex(fd);
+	if (i == size_t(-1))
+	{
+		std::cout << "Client not found, index = -1" << std::endl;
+		return;
+	}
 	bytes = recv(fd, &buf[0], 1, 0);
 	if (bytes <= 0)
 	{
@@ -188,6 +194,7 @@ void	Server::processData(t_cmd *dataCmd, int fd)
 void	Server::initServer(t_cmd *dataCmd)
 {
 	int	status;
+	int clientIndex;
 	size_t	i;
 
 	initSocket();
@@ -212,6 +219,9 @@ void	Server::initServer(t_cmd *dataCmd)
 				{
 					// std::cout << "Data received from client" << std::endl;
 					processData(dataCmd, this->_pfds[i].fd);
+					clientIndex = getClientIndex(this->_pfds[i].fd);
+					if (clientIndex != -1)
+						tryWelcome(&_clients[clientIndex]);
 				}
 			}
 			i++;

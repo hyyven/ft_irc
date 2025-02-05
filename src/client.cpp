@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/21 13:34:47 by afont             #+#    #+#             */
-/*   Updated: 2025/02/03 17:46:22 by afont            ###   ########.fr       */
+/*   Updated: 2025/02/05 12:11:11 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ void Client::sendWelcome()
 	{
 		status = send(_fd, messages[0].c_str(), messages[0].length(), 0);
 		if (status == -1)
-			std::cout << "send() failed" << std::endl;
+			std::cout << "send() failed welcome" << std::endl;
 		messages.erase(messages.begin());
 	}
 }
@@ -42,7 +42,7 @@ void Client::sendWelcome()
 void Client::sendMessage(const std::string& message) const
 {
 	if (send(_fd, message.c_str(), message.length(), 0) == -1)
-		std::cout << "send() failed" << std::endl;
+		std::cout << "send() failed to fd: " << _fd << "with message: " << message << std::endl;
 }
 
 void Client::sendMessageToChannel(const std::string& message, const std::vector<Client>& clients)
