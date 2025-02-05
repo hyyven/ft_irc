@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:05:17 by dravaono          #+#    #+#             */
-/*   Updated: 2025/02/04 15:54:22 by afont            ###   ########.fr       */
+/*   Updated: 2025/02/05 11:40:59 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,20 +34,24 @@ void    checkCmd(Client *cli, std::vector<std::string> cmd, Server *server)
 		}
 		else if (cmd[0] == "NICK")
 		{
-			if (cli->_nickname != "Unknown")
+			if (nickExists(cmd[1], server))
 			{
-				cli->sendMessage(":" + cli->_nickname + "!" + cli->_username + "@" + cli->_ip + " NICK :" + cmd[1] + "\r\n");
+				cli->sendMessage(":server 433 " + cmd[1] + " :Nickname already taken\r\n");
 			}
-			cli->_nickname = cmd[1];
+			else if (cli->_nickname != "Unknown")
+			{
+				//changement de nickname
+				cli->sendMessage(":" + cli->_nickname + "!" + cli->_username + "@" + cli->_ip + " NICK :" + cmd[1] + "\r\n");
+				cli->_nickname = cmd[1];
+			}
+			else
+			{
+				cli->_nickname = cmd[1];
+			}
 		}
 		else if (cmd[0] == "USER")
 		{
 			cli->_username = cmd[1];
-			if (cli->_isRegistered)
-			{
-				// cli->sendMessage(": 433 USER: Nickname already taken.\r\n");
-				cli->sendWelcome();
-			}
 		}
 		else if (cmd[0] == "QUIT" && cmd[1] == ":Leaving")
 		{
