@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   all.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
+/*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 16:04:06 by afont             #+#    #+#             */
-/*   Updated: 2025/02/05 12:38:03 by afont            ###   ########.fr       */
+/*   Updated: 2025/02/05 14:37:06 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,10 +28,12 @@
 #include <iostream>
 #include <csignal>
 #include <poll.h>
-// #include <sys/socket.h>
+#include <sys/socket.h>
 #include <vector>
 #include <cstdlib>
 #include <map>
+#include <unistd.h>
+#include <errno.h>
 
 class Server;
 class Client;
