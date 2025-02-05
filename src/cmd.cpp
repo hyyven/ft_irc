@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:05:17 by dravaono          #+#    #+#             */
-/*   Updated: 2025/02/05 13:32:52 by afont            ###   ########.fr       */
+/*   Updated: 2025/02/05 13:39:21 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,7 +138,7 @@ void cmdPrivmsg(Client *sender, const std::string& target, const std::string& me
 		{
 			if (server->_clients[i]._nickname != sender->_nickname)
 			{
-				std::cout << "Sending to " << server->_clients[i]._nickname << std::endl;
+				// std::cout << "Sending to " << server->_clients[i]._nickname << std::endl;
 				send(server->_clients[i]._fd, formattedMessage.c_str(), formattedMessage.length(), 0);
 			}
 		}
@@ -154,7 +154,7 @@ void cmdPrivmsg(Client *sender, const std::string& target, const std::string& me
 		{
 			if (server->_clients[i]._nickname == target)
 			{
-				std::cout << "Sending to " << server->_clients[i]._nickname << std::endl;
+				// std::cout << "Sending to " << server->_clients[i]._nickname << std::endl;
 				send(server->_clients[i]._fd, formattedMessage.c_str(), formattedMessage.length(), 0);
 			}
 		}
