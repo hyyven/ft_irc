@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:05:17 by dravaono          #+#    #+#             */
-/*   Updated: 2025/02/05 13:23:18 by afont            ###   ########.fr       */
+/*   Updated: 2025/02/05 13:32:52 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,21 @@ void    checkCmd(Client *cli, std::vector<std::string> cmd, Server *server)
 		{
 			cmdJoin(cli, cmd[1], server);
 		}
+		else if (cmd[0] == "PRIVMSG" && size >= 3)
+		{
+			std::string target = cmd[1];
+			std::string message;
+			
+			for (size_t i = 2; i < cmd.size(); ++i)
+			{
+				if (i > 2) 
+					message += " ";
+				message += cmd[i];
+			}			
+			if (message[0] == ':')
+				message.erase(0, 1);
+			cmdPrivmsg(cli, target, message, server);
+		}
 	}
 }
 
@@ -107,5 +122,41 @@ void	verifyPassword(std::vector<std::string> cmd, Server *serv, Client *cli)
 	else
 	{
 		cli->_isRegistered = true;
+	}
+}
+
+void cmdPrivmsg(Client *sender, const std::string& target, const std::string& message, Server *server)
+{
+	if (target[0] == '#')
+	{
+		std::cout << "Channel message from " << sender->_nickname << " to " << target << ": " << message << std::endl;
+
+		std::string formattedMessage = ":" + sender->_nickname + "!" + sender->_username + "@" + sender->_ip;
+		formattedMessage += " PRIVMSG " + target + " :" + message + "\r\n";
+
+		for (size_t i = 0; i < server->_clients.size(); ++i)
+		{
+			if (server->_clients[i]._nickname != sender->_nickname)
+			{
+				std::cout << "Sending to " << server->_clients[i]._nickname << std::endl;
+				send(server->_clients[i]._fd, formattedMessage.c_str(), formattedMessage.length(), 0);
+			}
+		}
+	}
+	else
+	{
+		std::cout << "Private message from " << sender->_nickname << " to " << target << ": " << message << std::endl;
+
+		std::string formattedMessage = ":" + sender->_nickname + "!" + sender->_username + "@" + sender->_ip;
+		formattedMessage += " PRIVMSG " + target + " :" + message + "\r\n";
+
+		for (size_t i = 0; i < server->_clients.size(); ++i)
+		{
+			if (server->_clients[i]._nickname == target)
+			{
+				std::cout << "Sending to " << server->_clients[i]._nickname << std::endl;
+				send(server->_clients[i]._fd, formattedMessage.c_str(), formattedMessage.length(), 0);
+			}
+		}
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:06:00 by dravaono          #+#    #+#             */
-/*   Updated: 2025/02/05 12:35:15 by afont            ###   ########.fr       */
+/*   Updated: 2025/02/05 13:33:58 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,3 +22,4 @@ typedef struct s_cmd
 void	cmdJoin(Client *client, std::string channel, Server *serv);
 void    checkCmd(Client *client, std::vector<std::string> cmd, Server *server);
 void	verifyPassword(std::vector<std::string> cmd, Server *serv, Client *cli);
+void    cmdPrivmsg(Client *sender, const std::string& target, const std::string& message, Server *server);
