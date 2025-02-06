@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/21 13:34:47 by afont             #+#    #+#             */
-/*   Updated: 2025/02/05 12:11:11 by afont            ###   ########.fr       */
+/*   Updated: 2025/02/06 16:05:20 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,11 +45,11 @@ void Client::sendMessage(const std::string& message) const
 		std::cout << "send() failed to fd: " << _fd << "with message: " << message << std::endl;
 }
 
-void Client::sendMessageToChannel(const std::string& message, const std::vector<Client>& clients)
+void Client::sendMessageToChannel(const std::string& message, const std::vector<Client*>& clients)
 {
 	for (size_t i = 0; i < clients.size(); i++)
 	{
-		if (clients[i]._fd != _fd)
-			clients[i].sendMessage(message);
+		if (clients[i]->_fd != _fd)
+			clients[i]->sendMessage(message);
 	}
 }

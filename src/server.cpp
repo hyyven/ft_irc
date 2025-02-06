@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 11:32:15 by afont             #+#    #+#             */
-/*   Updated: 2025/02/05 14:38:10 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/02/06 17:59:27 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,6 @@ void	Server::removeClient(int fd)
 	i = 0;
 	while (i < this->_clients.size())
 	{
-		// std::cout << "/" << std::endl;
 		if (this->_clients[i]._fd == fd)
 		{
 			this->_clients.erase(this->_clients.begin() + i);
@@ -72,7 +71,6 @@ void	Server::removeClient(int fd)
 		}
 		i++;
 	}
-	// std::cout << ":" << std::endl;
 }
 
 void	Server::newClient()
@@ -108,7 +106,6 @@ void	Server::newClient()
 	cli._ip = inet_ntoa(cli_addr.sin_addr);
 	this->_clients.push_back(cli);
 	this->_pfds.push_back(pfd);
-	// cli.sendWelcome();
 }
 
 void	Server::initSocket()
@@ -156,7 +153,7 @@ int	Server::getClientIndex(int fd)
 	return (-1);
 }
 
-void	Server::processData(t_cmd *dataCmd, int fd)
+void	Server::processData(int fd)
 {
 	std::string buf(1, 0);
 	size_t	bytes;
@@ -177,22 +174,21 @@ void	Server::processData(t_cmd *dataCmd, int fd)
 	}
 	else
 	{
-		// std::cout << "Data received: [" << buf << "]" << std::endl;
-			// std::cout << "i: " << i << std::endl;
-		// _clients[i]._nickname = "Alice";
-		if (parserCmd(dataCmd, buf) == 1) //si c'est la fin du message
+		if (parserCmd(&_clients[i], buf) == 1) //si c'est la fin du message
 		{
-			std::cout << "Message: [" << dataCmd->_message << "]" << std::endl;
+			std::cout << "Message: [" << _clients[i]._dataCmd._message << "]" << std::endl;
 			// std::cout << "i: " << i << std::endl;
 			// printvector(dataCmd->_cmd);
-			checkCmd(&_clients[i], dataCmd->_cmd, this);
-			// appel aux commandes ici
-			dataCmd->_message.clear();
+			checkCmd(&_clients[i], _clients[i]._dataCmd._cmd, this);
+			if (i < _clients.size() && _clients[i]._fd == fd)
+			{
+				_clients[i]._dataCmd._message.clear();
+			}
 		}
 	}
 }
 
-void	Server::initServer(t_cmd *dataCmd)
+void	Server::initServer()
 {
 	int	status;
 	int clientIndex;
@@ -218,9 +214,8 @@ void	Server::initServer(t_cmd *dataCmd)
 				}
 				else
 				{
-					// std::cout << "Data received from client" << std::endl;
-					processData(dataCmd, this->_pfds[i].fd);
 					clientIndex = getClientIndex(this->_pfds[i].fd);
+					processData(this->_pfds[i].fd);
 					if (clientIndex != -1)
 						tryWelcome(&_clients[clientIndex]);
 				}

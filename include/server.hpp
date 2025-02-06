@@ -28,11 +28,11 @@ class	Server
 		Server();
 		~Server();
 		int			getClientIndex(int fd);
-		void		initServer(t_cmd *dataCmd);
+		void		initServer();
 		void		initSocket();
 		void		closeFd();
 		void		newClient();
-		void		processData(t_cmd *dataCmd, int fd);
+		void		processData(int fd);
 		void		removeClient(int fd);
 		static void	signalHandler(int signum);
 };
