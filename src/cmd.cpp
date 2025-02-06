@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
+/*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:05:17 by dravaono          #+#    #+#             */
-/*   Updated: 2025/02/05 13:39:21 by afont            ###   ########.fr       */
+/*   Updated: 2025/02/06 01:47:18 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,10 @@ void    checkCmd(Client *cli, std::vector<std::string> cmd, Server *server)
 			close(cli->_fd);
 			server->removeClient(cli->_fd);
 		}
+		else if (cmd[0] == "PART" && size >= 2)
+		{
+			cmdPart(cli, cmd[1], server);
+		}
 		else if (cmd[0] == "JOIN" && cmd[1][0] != '#')
 		{
 			std::string mess = cmd[1] + " :No such channel" + "\r\n";
@@ -89,7 +93,6 @@ void    checkCmd(Client *cli, std::vector<std::string> cmd, Server *server)
 
 void cmdJoin(Client *cli, std::string channel, Server *serv)
 {
-	// static Channel channelManager;
 	std::string joinMessage = ":" + cli->_nickname + "!" + cli->_username + "@" + cli->_ip + " JOIN " + channel + "\r\n";
 
 	if (serv->_channelManager.channelExists(channel))
@@ -129,34 +132,41 @@ void cmdPrivmsg(Client *sender, const std::string& target, const std::string& me
 {
 	if (target[0] == '#')
 	{
-		std::cout << "Channel message from " << sender->_nickname << " to " << target << ": " << message << std::endl;
-
-		std::string formattedMessage = ":" + sender->_nickname + "!" + sender->_username + "@" + sender->_ip;
-		formattedMessage += " PRIVMSG " + target + " :" + message + "\r\n";
-
-		for (size_t i = 0; i < server->_clients.size(); ++i)
+		if (!server->_channelManager.channelExists(target))
 		{
-			if (server->_clients[i]._nickname != sender->_nickname)
-			{
-				// std::cout << "Sending to " << server->_clients[i]._nickname << std::endl;
-				send(server->_clients[i]._fd, formattedMessage.c_str(), formattedMessage.length(), 0);
-			}
+			sender->sendMessage(":server 403 " + sender->_nickname + " " + target + " :No such channel\r\n");
+			return;
 		}
+		std::string formattedMessage = ":" + sender->_nickname + "!" + sender->_username + "@" + sender->_ip 
+										+ " PRIVMSG " + target + " :" + message + "\r\n";
+		server->_channelManager.broadcastMessage(target, formattedMessage, sender);
 	}
 	else
 	{
 		std::cout << "Private message from " << sender->_nickname << " to " << target << ": " << message << std::endl;
-
-		std::string formattedMessage = ":" + sender->_nickname + "!" + sender->_username + "@" + sender->_ip;
-		formattedMessage += " PRIVMSG " + target + " :" + message + "\r\n";
-
+		std::string formattedMessage = ":" + sender->_nickname + "!" + sender->_username + "@" + sender->_ip 
+										+ " PRIVMSG " + target + " :" + message + "\r\n";
 		for (size_t i = 0; i < server->_clients.size(); ++i)
 		{
 			if (server->_clients[i]._nickname == target)
 			{
-				// std::cout << "Sending to " << server->_clients[i]._nickname << std::endl;
 				send(server->_clients[i]._fd, formattedMessage.c_str(), formattedMessage.length(), 0);
 			}
 		}
 	}
+}
+
+void cmdPart(Client *client, const std::string& channel, Server *server)
+{
+    if (!server->_channelManager.channelExists(channel))
+    {
+        client->sendMessage(":server 403 " + client->_nickname + " " + channel + " :No such channel\r\n");
+        return;
+    }
+
+    std::string partMessage = ":" + client->_nickname + "!" + client->_username + "@" + client->_ip
+								+ " PART " + channel + " :Leaving\r\n";
+	client->sendMessage(partMessage);
+    client->sendMessageToChannel(partMessage, server->_channelManager.getChannelClients(channel));
+    server->_channelManager.removeClientFromChannel(channel, client);
 }
