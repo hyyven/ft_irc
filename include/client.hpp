@@ -20,6 +20,7 @@ class	Client
 		bool		_isRegistered;
 		bool		_isWelcomed;
 		int			_fd;
+		s_cmd		_dataCmd;
 		std::string	_ip;
 		std::string	_nickname;
 		std::string	_username;
@@ -29,5 +30,5 @@ class	Client
 		void			sendWelcome();
 		void			setCliValue(std::string buf);
 		void			sendMessage(const std::string& message) const;
-		void			sendMessageToChannel(const std::string& message, const std::vector<Client>& clients);
+		void			sendMessageToChannel(const std::string& message, const std::vector<Client*>& clients);
 };

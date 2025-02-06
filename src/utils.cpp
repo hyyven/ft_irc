@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 12:55:43 by afont             #+#    #+#             */
-/*   Updated: 2025/02/05 12:44:12 by afont            ###   ########.fr       */
+/*   Updated: 2025/02/06 17:58:40 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,20 +71,18 @@ std::vector<std::string> split(const std::string& str, char delimiter)
     return tokens;
 }
 
-int	parserCmd(t_cmd *dataCmd, std::string buf)
+int	parserCmd(Client *cli, std::string buf)
 {
-	static std::string	last_buf;
-
 	if (buf.find('\r') == 0)
-		last_buf = buf;
-	else if (last_buf.find('\r') == 0 && buf.find('\n') == 0)
+		cli->_dataCmd._lastBuf = buf;
+	else if (cli->_dataCmd._lastBuf.find('\r') == 0 && buf.find('\n') == 0)
 	{
-		dataCmd->_cmd = split(dataCmd->_message, ' ');
+		cli->_dataCmd._cmd = split(cli->_dataCmd._message, ' ');
 		return (1);
 	}
 	else
 	{
-    	dataCmd->_message += buf;
+    	cli->_dataCmd._message += buf;
 	}
 	return (0);
 }
@@ -120,7 +118,6 @@ int	nickExists(std::string nickname, Server *server)
 
 void	tryWelcome(Client *cli)
 {
-	// std::cout << cli->_fd << std::endl;
 	if (cli->_nickname != "Unknown" && cli->_username != "Unknown" && cli->_isWelcomed == false)
 	{
 		cli->sendWelcome();

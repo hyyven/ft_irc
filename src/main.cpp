@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 11:33:57 by afont             #+#    #+#             */
-/*   Updated: 2025/02/04 16:09:48 by afont            ###   ########.fr       */
+/*   Updated: 2025/02/06 16:57:46 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 int	main(int ac, char **av)
 {
 	Server	server;
-	t_cmd	dataCmd;
+	// t_cmd	dataCmd;
 	
 	parse_argv(&server, ac, av);
 	// dataCmd = new t_cmd();
@@ -24,7 +24,7 @@ int	main(int ac, char **av)
 	{
 		signal(SIGINT, Server::signalHandler);
 		signal(SIGQUIT, Server::signalHandler);
-		server.initServer(&dataCmd);
+		server.initServer();
 	}
 	catch(const std::exception& e)
 	{
@@ -33,5 +33,4 @@ int	main(int ac, char **av)
 	return (0);
 }
 
-//to do : Nickname already taken
 //to do : ping pong

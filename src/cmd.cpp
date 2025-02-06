@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:05:17 by dravaono          #+#    #+#             */
-/*   Updated: 2025/02/06 01:47:18 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/02/06 18:17:13 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,10 @@ void    checkCmd(Client *cli, std::vector<std::string> cmd, Server *server)
 		{
 			verifyPassword(cmd, server, cli);
 		}
+		else if (cmd[0] == "NICK")
+		{
+			cmdChangeNickname(cli, server, cmd);
+		}
 	}
 	if (size >= 2)
 	{
@@ -31,24 +35,6 @@ void    checkCmd(Client *cli, std::vector<std::string> cmd, Server *server)
 			cli->sendMessage(":server 464 " + cli->_nickname + " :Password required\r\n");
 			close(cli->_fd);
 			server->removeClient(cli->_fd);
-		}
-		else if (cmd[0] == "NICK")
-		{
-			if (nickExists(cmd[1], server))
-			{
-				cli->sendMessage(":server 433 " + cmd[1] + " :Nickname already taken\r\n");
-			}
-			else if (cli->_nickname != "Unknown")
-			{
-				//changement de nickname
-				// sendNickChangeNotification(cli, cmd[1], server);
-				cli->sendMessage(":" + cli->_nickname + "!" + cli->_username + "@" + cli->_ip + " NICK :" + cmd[1] + "\r\n");
-				cli->_nickname = cmd[1];
-			}
-			else
-			{
-				cli->_nickname = cmd[1];
-			}
 		}
 		else if (cmd[0] == "USER")
 		{
@@ -97,8 +83,7 @@ void cmdJoin(Client *cli, std::string channel, Server *serv)
 
 	if (serv->_channelManager.channelExists(channel))
 		cli->sendMessageToChannel(joinMessage, serv->_channelManager.getChannelClients(channel));
-
-	serv->_channelManager.createChannel(channel, *cli);
+	serv->_channelManager.createChannel(channel, cli);
 
 	cli->sendMessage(joinMessage);
 	cli->sendMessage(":server 332 " + cli->_nickname + " " + channel + " :\r\n");
@@ -123,9 +108,7 @@ void	verifyPassword(std::vector<std::string> cmd, Server *serv, Client *cli)
 		serv->removeClient(cli->_fd);
 	}
 	else
-	{
 		cli->_isRegistered = true;
-	}
 }
 
 void cmdPrivmsg(Client *sender, const std::string& target, const std::string& message, Server *server)
@@ -169,4 +152,27 @@ void cmdPart(Client *client, const std::string& channel, Server *server)
 	client->sendMessage(partMessage);
     client->sendMessageToChannel(partMessage, server->_channelManager.getChannelClients(channel));
     server->_channelManager.removeClientFromChannel(channel, client);
+}
+
+void	cmdChangeNickname(Client *cli, Server *server, std::vector<std::string> cmd)
+{
+	if (cmd.size() != 2)
+	{
+		cli->sendMessage(":server 431 " + cli->_nickname + " :No nickname given\r\n");
+		return;
+	}
+	else if (nickExists(cmd[1], server))
+	{
+		cli->sendMessage(":server 433 " + cmd[1] + " :Nickname already taken\r\n");
+	}
+	else if (cli->_nickname != "Unknown")
+	{
+		for (size_t i = 0; i < server->_clients.size(); ++i)
+			server->_clients[i].sendMessage(":" + cli->_nickname + "!" + cli->_username + "@" + cli->_ip + " NICK :" + cmd[1] + "\r\n");
+		cli->_nickname = cmd[1];
+	}
+	else
+	{
+		cli->_nickname = cmd[1];
+	}
 }

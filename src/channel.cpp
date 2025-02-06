@@ -3,20 +3,24 @@
 /*                                                        :::      ::::::::   */
 /*   channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:27:39 by dravaono          #+#    #+#             */
-/*   Updated: 2025/02/06 01:48:42 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/02/06 16:47:36 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/all.hpp"
 
-Channel::Channel() {}
+Channel::Channel()
+{
+}
 
-Channel::~Channel() {}
+Channel::~Channel()
+{
+}
 
-void Channel::createChannel(std::string channelName, Client client)
+void Channel::createChannel(std::string channelName, Client *client)
 {
 	if (!channelExists(channelName))
 	{
@@ -36,7 +40,7 @@ std::string Channel::getChannelUsers(std::string channel)
 	{
 		for (size_t i = 0; i < _Channel[channel].size(); i++)
 		{
-			users += _Channel[channel][i]._nickname;
+			users += _Channel[channel][i]->_nickname;
 			if (i < _Channel[channel].size() - 1)
 				users += " ";
 		}
@@ -49,11 +53,13 @@ bool Channel::channelExists(std::string channel)
 	return _Channel.find(channel) != _Channel.end();
 }
 
-std::vector<Client> Channel::getChannelClients(std::string channel)
+std::vector<Client*> Channel::getChannelClients(std::string channel)
 {
 	if (channelExists(channel))
+	{
 		return _Channel[channel];
-	return std::vector<Client>();
+	}
+	return std::vector<Client*>();
 }
 
 void Channel::removeClientFromChannel(const std::string &channelName, Client *client)
@@ -62,7 +68,7 @@ void Channel::removeClientFromChannel(const std::string &channelName, Client *cl
 	{
 		for (size_t i = 0; i < _Channel[channelName].size(); i++)
 		{
-			if (_Channel[channelName][i]._nickname == client->_nickname)
+			if (_Channel[channelName][i]->_nickname == client->_nickname)
 			{
 				_Channel[channelName].erase(_Channel[channelName].begin() + i);
 				std::cout << "Client " << client->_nickname << " removed from channel " << channelName << std::endl;
@@ -83,8 +89,8 @@ void Channel::broadcastMessage(const std::string& channelName, const std::string
 	{
 		for (size_t i = 0; i < _Channel[channelName].size(); i++)
 		{
-			if (_Channel[channelName][i]._nickname != sender->_nickname)
-				_Channel[channelName][i].sendMessage(message);
+			if (_Channel[channelName][i]->_nickname != sender->_nickname)
+				_Channel[channelName][i]->sendMessage(message);
 		}
 	}
 }
