@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 11:32:15 by afont             #+#    #+#             */
-/*   Updated: 2025/02/06 17:59:27 by afont            ###   ########.fr       */
+/*   Updated: 2025/02/07 14:48:29 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -179,7 +179,14 @@ void	Server::processData(int fd)
 			std::cout << "Message: [" << _clients[i]._dataCmd._message << "]" << std::endl;
 			// std::cout << "i: " << i << std::endl;
 			// printvector(dataCmd->_cmd);
-			checkCmd(&_clients[i], _clients[i]._dataCmd._cmd, this);
+			if (initCliValue(&_clients[i], this))
+			{
+				checkCmd(&_clients[i], _clients[i]._dataCmd._cmd, this);
+			}
+			else
+			{
+				
+			}
 			if (i < _clients.size() && _clients[i]._fd == fd)
 			{
 				_clients[i]._dataCmd._message.clear();
