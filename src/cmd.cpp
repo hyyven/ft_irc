@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:05:17 by dravaono          #+#    #+#             */
-/*   Updated: 2025/02/06 18:17:13 by afont            ###   ########.fr       */
+/*   Updated: 2025/02/07 14:56:40 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,28 +19,14 @@ void    checkCmd(Client *cli, std::vector<std::string> cmd, Server *server)
 	size = cmd.size(); 	                    // protection segfault
 	if (size >= 1)
 	{
-		if (cmd[0] == "PASS")
-		{
-			verifyPassword(cmd, server, cli);
-		}
-		else if (cmd[0] == "NICK")
+		if (cmd[0] == "NICK")
 		{
 			cmdChangeNickname(cli, server, cmd);
 		}
 	}
 	if (size >= 2)
 	{
-		if ((cmd[0] == "NICK" || cmd[0] == "USER") && !cli->_isRegistered)
-		{
-			cli->sendMessage(":server 464 " + cli->_nickname + " :Password required\r\n");
-			close(cli->_fd);
-			server->removeClient(cli->_fd);
-		}
-		else if (cmd[0] == "USER")
-		{
-			cli->_username = cmd[1];
-		}
-		else if (cmd[0] == "QUIT" && cmd[1] == ":Leaving")
+		if (cmd[0] == "QUIT" && cmd[1] == ":Leaving")
 		{
 			std::cout << "Client " << cli->_nickname << " disconnected" << std::endl;
 			close(cli->_fd);

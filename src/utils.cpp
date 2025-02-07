@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 12:55:43 by afont             #+#    #+#             */
-/*   Updated: 2025/02/06 17:58:40 by afont            ###   ########.fr       */
+/*   Updated: 2025/02/07 14:54:24 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,5 +122,44 @@ void	tryWelcome(Client *cli)
 	{
 		cli->sendWelcome();
 		cli->_isWelcomed = true;
+	}
+}
+
+int	initCliValue(Client *cli, Server *serv)
+{
+	size_t size = cli->_dataCmd._cmd.size();
+	if (cli->_isRegistered && cli->_nickname != "Unknown" && cli->_username != "Unknown")
+	{
+		return (1);
+	}
+	if (size >= 1)
+	{
+		if (cli->_dataCmd._cmd[0] == "NICK")
+		{
+			cmdChangeNickname(cli, serv, cli->_dataCmd._cmd);
+		}
+	}
+	if (size >= 2)
+	{
+		if (cli->_dataCmd._cmd[0] == "PASS")
+		{
+			verifyPassword(cli->_dataCmd._cmd, serv, cli);
+		}
+		else if (cli->_dataCmd._cmd[0] == "USER")
+		{
+			cli->_username = cli->_dataCmd._cmd[1];
+		}
+	}
+	if (!cli->_isRegistered || cli->_nickname == "Unknown" || cli->_username == "Unknown")
+	{
+		if (cli->_dataCmd._cmd[0] != "NICK" && cli->_dataCmd._cmd[0] != "USER" && cli->_dataCmd._cmd[0] != "PASS" && cli->_dataCmd._cmd[0] != "CAP")
+		{
+			cli->sendMessage(":server 451 " + cli->_nickname + " :You have not registered\r\n");
+		}
+		return (0);
+	}
+	else
+	{
+		return (1);
 	}
 }
