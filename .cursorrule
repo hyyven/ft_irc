@@ -1,0 +1,73 @@
+# ft_irc.cursorrules
+# Cursorrules configuration for the ft_irc project (IRC server)
+# This configuration defines coding and design guidelines for a robust C++98 IRC server.
+
+[Memory Safety and Resource Management]
+- Employ RAII to manage resources and prevent memory leaks.
+- Use legacy smart pointers (e.g., std::auto_ptr) as appropriate given the C++98 constraints.
+- Follow the Rule of 0/3 for managing copy constructors, assignment operators, and destructors.
+- Avoid using raw pointers whenever possible; ensure proper cleanup if their use is necessary.
+
+[Concurrency and I/O Operations]
+- Design a fully non-blocking server using poll() (or an equivalent such as select()).
+- Manage multiple client connections simultaneously using efficient file descriptor operations.
+- Do not fork; all I/O must be non-blocking.
+- Gracefully handle edge cases like partial data reads, low bandwidth, and malformed requests.
+
+[Code Style and Documentation]
+- Write code that adheres strictly to the C++98 standard and compiles with -Wall -Wextra -Werror.
+- Maintain a clean, consistent coding style and use a proper formatting standard.
+- Provide detailed comments for public interfaces and any complex operations, especially those related to message parsing and connection handling.
+
+[Message Processing and Protocol Handling]
+- Implement robust parsing to reassemble fragmented IRC commands received over TCP.
+- Support essential IRC functionalities:
+    - Authentication commands: NICK, USER, PASS.
+    - Channel operations: JOIN, PART, KICK, TOPIC, INVITE, MODE.
+    - Broadcast messages to all clients within a channel.
+- Validate message types and sizes to prevent protocol violations.
+
+[Error Handling and Logging]
+- Ensure the server never crashes—even under low memory conditions or unexpected input.
+- Validate all inputs, connection statuses, and parsing outcomes.
+- Log errors with clear, contextual messages to facilitate debugging.
+
+[Performance Optimization]
+- Use efficient buffer management with raw arrays and pointer arithmetic to minimize overhead.
+- Avoid unnecessary memory copying by processing data in place.
+- Optimize message reassembly to handle fragmented commands efficiently.
+
+[Testing Best Practices]
+- Develop comprehensive test scripts using tools such as nc and standard IRC clients.
+- Rigorously test edge cases including partial command transmissions and high concurrency scenarios.
+- Ensure that the server maintains full protocol compliance even under stress.
+
+[Security Considerations]
+- Enforce proper authentication with secure password management.
+- Validate all incoming data to prevent buffer overflows.
+- Avoid unsafe pointer arithmetic by implementing strict bounds checking.
+
+[Build System]
+- Provide a robust Makefile with at least the following targets: all, clean, fclean, and re.
+- Ensure the build system minimizes unnecessary relinking.
+- Support cross-platform compatibility; for MacOS, restrict fcntl() usage to:
+  fcntl(fd, F_SETFL, O_NONBLOCK);
+
+[Configuration and Runtime Parameters]
+- Support command-line parameters for specifying the listening port and server password:
+  Usage: ./ircserv <port> <password>
+- Optionally implement configuration file parsing for runtime settings.
+
+[Example Code Snippet]
+```cpp
+void handleClient(int client_fd)
+{
+    char buffer[1024];
+    int bytes_read = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
+    if (bytes_read > 0)
+    {
+        buffer[bytes_read] = '\0'; // Null-terminate the string
+        std::cout << "Received: " << buffer << std::endl;
+        send(client_fd, "Message received.\n", 18, 0);
+    }
+}
