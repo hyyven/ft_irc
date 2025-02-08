@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
+/*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:05:17 by dravaono          #+#    #+#             */
-/*   Updated: 2025/02/07 14:56:40 by afont            ###   ########.fr       */
+/*   Updated: 2025/02/08 19:37:07 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,8 +67,9 @@ void cmdJoin(Client *cli, std::string channel, Server *serv)
 {
 	std::string joinMessage = ":" + cli->_nickname + "!" + cli->_username + "@" + cli->_ip + " JOIN " + channel + "\r\n";
 
+		// cli->sendMessageToChannel(joinMessage, serv->_channelManager.getChannelClients(channel));
 	if (serv->_channelManager.channelExists(channel))
-		cli->sendMessageToChannel(joinMessage, serv->_channelManager.getChannelClients(channel));
+		cli->sendMessageToChannel(joinMessage, serv->_channelManager._Channel[channel]);
 	serv->_channelManager.createChannel(channel, cli);
 
 	cli->sendMessage(joinMessage);
@@ -136,7 +137,7 @@ void cmdPart(Client *client, const std::string& channel, Server *server)
     std::string partMessage = ":" + client->_nickname + "!" + client->_username + "@" + client->_ip
 								+ " PART " + channel + " :Leaving\r\n";
 	client->sendMessage(partMessage);
-    client->sendMessageToChannel(partMessage, server->_channelManager.getChannelClients(channel));
+    client->sendMessageToChannel(partMessage, server->_channelManager._Channel[channel]);
     server->_channelManager.removeClientFromChannel(channel, client);
 }
 
