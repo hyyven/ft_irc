@@ -6,7 +6,7 @@
 /*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:05:17 by dravaono          #+#    #+#             */
-/*   Updated: 2025/02/08 19:37:07 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/02/16 21:39:31 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,11 @@ void    checkCmd(Client *cli, std::vector<std::string> cmd, Server *server)
 				message.erase(0, 1);
 			cmdPrivmsg(cli, target, message, server);
 		}
+		else if (cmd[0] == "KICK" && size >= 3)
+		{
+			cmdKick(cli, cmd[1], cmd[2], server);
+		}
+		
 	}
 }
 
@@ -67,11 +72,17 @@ void cmdJoin(Client *cli, std::string channel, Server *serv)
 {
 	std::string joinMessage = ":" + cli->_nickname + "!" + cli->_username + "@" + cli->_ip + " JOIN " + channel + "\r\n";
 
-		// cli->sendMessageToChannel(joinMessage, serv->_channelManager.getChannelClients(channel));
 	if (serv->_channelManager.channelExists(channel))
+	{
+		std::cout << "\nDEBUG - Client " << cli->_nickname << " joined channel " << channel << std::endl;
+		serv->_channelManager._Channel[channel].push_back(cli);
 		cli->sendMessageToChannel(joinMessage, serv->_channelManager._Channel[channel]);
-	serv->_channelManager.createChannel(channel, cli);
-
+	}
+	else
+	{
+		std::cout << "\nDEBUG - Client " << cli->_nickname << " created channel " << channel << std::endl;
+		serv->_channelManager.createChannel(channel, cli);
+	}
 	cli->sendMessage(joinMessage);
 	cli->sendMessage(":server 332 " + cli->_nickname + " " + channel + " :\r\n");
 	cli->sendMessage(":server 353 " + cli->_nickname + " = " + channel + " :" + serv->_channelManager.getChannelUsers(channel) + "\r\n");
@@ -162,4 +173,57 @@ void	cmdChangeNickname(Client *cli, Server *server, std::vector<std::string> cmd
 	{
 		cli->_nickname = cmd[1];
 	}
+}
+
+void	cmdKick(Client *client, std::string channel, std::string nickname, Server *server)
+{
+    if (!server->_channelManager.channelExists(channel))
+    {
+        client->sendMessage(":server 403 " + client->_nickname + " " + channel + " :No such channel\r\n");
+        return;
+    }
+
+    if (!server->_channelManager.isOperator(client))
+    {
+        client->sendMessage(":server 482 " + client->_nickname + " " + channel + " :You're not channel operator\r\n");
+        return;
+    }
+
+    Client *target = 0;
+    for (size_t i = 0; i < server->_clients.size(); i++)
+    {
+        if (server->_clients[i]._nickname == nickname)
+        {
+            target = &server->_clients[i];
+            break;
+        }
+    }
+    if (!target)
+    {
+        client->sendMessage(":server 401 " + client->_nickname + " " + nickname + " :No such nick\r\n");
+        return;
+    }
+
+    bool targetFound = false;
+    for (size_t i = 0; i < server->_channelManager._Channel[channel].size(); i++)
+    {
+        if (server->_channelManager._Channel[channel][i]->_fd == target->_fd)
+        {
+            targetFound = true;
+            break;
+        }
+    }
+
+    if (!targetFound)
+    {
+        client->sendMessage(":server 441 " + client->_nickname + " " + nickname + " " + channel + " :They aren't on that channel\r\n");
+        return;
+    }
+
+    std::string kickMessage = ":" + client->_nickname + "!" + client->_username + "@" + client->_ip + 
+                             " KICK " + channel + " " + nickname + " :Kicked by operator\r\n";
+	client->sendMessage(kickMessage);
+    client->sendMessageToChannel(kickMessage, server->_channelManager._Channel[channel]);
+
+    server->_channelManager.removeClientFromChannel(channel, target);
 }
