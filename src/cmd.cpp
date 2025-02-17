@@ -6,7 +6,7 @@
 /*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:05:17 by dravaono          #+#    #+#             */
-/*   Updated: 2025/02/16 21:39:31 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/02/17 00:46:29 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -200,7 +200,7 @@ void	cmdKick(Client *client, std::string channel, std::string nickname, Server *
     }
     if (!target)
     {
-        client->sendMessage(":server 401 " + client->_nickname + " " + nickname + " :No such nick\r\n");
+        client->sendMessage(":server 401 " + client->_nickname + " " + channel + " " + nickname + " :No such nick\r\n");
         return;
     }
 
@@ -216,7 +216,7 @@ void	cmdKick(Client *client, std::string channel, std::string nickname, Server *
 
     if (!targetFound)
     {
-        client->sendMessage(":server 441 " + client->_nickname + " " + nickname + " " + channel + " :They aren't on that channel\r\n");
+        client->sendMessage(":server 441 " + client->_nickname + " " + channel + " " + nickname + " :They aren't on that channel\r\n");
         return;
     }
 
