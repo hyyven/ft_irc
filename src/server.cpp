@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
+/*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 11:32:15 by afont             #+#    #+#             */
-/*   Updated: 2025/02/07 14:48:29 by afont            ###   ########.fr       */
+/*   Updated: 2025/02/18 12:17:13 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,9 @@
 
 
 bool Server::_signal = false;
-Server::Server()
-{
-}
+Server::Server() {}
 
-Server::~Server()
-{
-}
+Server::~Server() {}
 
 void	Server::signalHandler(int signum)
 {
@@ -30,13 +26,12 @@ void	Server::signalHandler(int signum)
 
 void	Server::closeFd()
 {
-	size_t	i;
-
-	i = 0;
-	while (i < this->_clients.size())
+	std::map<int, Client>::iterator it = _clients.begin();
+	while (it != _clients.end())
 	{
-		std::cout << "Client " << this->_clients[i]._nickname << " disconnected" << std::endl;
-		close(this->_clients[i++]._fd);
+		std::cout << "Client " << it->second._nickname << " disconnected" << std::endl;
+		close(it->first);
+		++it;
 	}
 	if (_socketFd != -1)
 	{
@@ -66,7 +61,8 @@ void	Server::removeClient(int fd)
 	{
 		if (this->_clients[i]._fd == fd)
 		{
-			this->_clients.erase(this->_clients.begin() + i);
+			// this->_clients.erase(this->_clients.begin() + i);
+			_pfds.erase(_pfds.begin() + i);
 			break;
 		}
 		i++;
@@ -104,7 +100,8 @@ void	Server::newClient()
 	cli._isRegistered = false;
 	cli._isWelcomed = false;
 	cli._ip = inet_ntoa(cli_addr.sin_addr);
-	this->_clients.push_back(cli);
+	// this->_clients.push_back(cli);
+	_clients[cli_fd] = cli;  // Utiliser le fd comme clé
 	this->_pfds.push_back(pfd);
 }
 

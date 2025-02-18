@@ -3,22 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
+/*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/21 13:34:47 by afont             #+#    #+#             */
-/*   Updated: 2025/02/06 16:05:20 by afont            ###   ########.fr       */
+/*   Updated: 2025/02/18 12:17:25 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/all.hpp"
 
-Client::Client()
-{
-}
+Client::Client() {}
 
-Client::~Client()
-{
-}
+Client::~Client() {}
 
 void Client::sendWelcome()
 {

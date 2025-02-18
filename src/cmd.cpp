@@ -6,7 +6,7 @@
 /*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:05:17 by dravaono          #+#    #+#             */
-/*   Updated: 2025/02/17 00:46:29 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/02/18 12:17:17 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,17 +139,17 @@ void cmdPrivmsg(Client *sender, const std::string& target, const std::string& me
 
 void cmdPart(Client *client, const std::string& channel, Server *server)
 {
-    if (!server->_channelManager.channelExists(channel))
-    {
-        client->sendMessage(":server 403 " + client->_nickname + " " + channel + " :No such channel\r\n");
-        return;
-    }
+	if (!server->_channelManager.channelExists(channel))
+	{
+		client->sendMessage(":server 403 " + client->_nickname + " " + channel + " :No such channel\r\n");
+		return;
+	}
 
-    std::string partMessage = ":" + client->_nickname + "!" + client->_username + "@" + client->_ip
+	std::string partMessage = ":" + client->_nickname + "!" + client->_username + "@" + client->_ip
 								+ " PART " + channel + " :Leaving\r\n";
 	client->sendMessage(partMessage);
-    client->sendMessageToChannel(partMessage, server->_channelManager._Channel[channel]);
-    server->_channelManager.removeClientFromChannel(channel, client);
+	client->sendMessageToChannel(partMessage, server->_channelManager._Channel[channel]);
+	server->_channelManager.removeClientFromChannel(channel, client);
 }
 
 void	cmdChangeNickname(Client *cli, Server *server, std::vector<std::string> cmd)
@@ -177,53 +177,53 @@ void	cmdChangeNickname(Client *cli, Server *server, std::vector<std::string> cmd
 
 void	cmdKick(Client *client, std::string channel, std::string nickname, Server *server)
 {
-    if (!server->_channelManager.channelExists(channel))
-    {
-        client->sendMessage(":server 403 " + client->_nickname + " " + channel + " :No such channel\r\n");
-        return;
-    }
+	if (!server->_channelManager.channelExists(channel))
+	{
+		client->sendMessage(":server 403 " + client->_nickname + " " + channel + " :No such channel\r\n");
+		return;
+	}
 
-    if (!server->_channelManager.isOperator(client))
-    {
-        client->sendMessage(":server 482 " + client->_nickname + " " + channel + " :You're not channel operator\r\n");
-        return;
-    }
+	if (!server->_channelManager.isOperator(client))
+	{
+		client->sendMessage(":server 482 " + client->_nickname + " " + channel + " :You're not channel operator\r\n");
+		return;
+	}
 
-    Client *target = 0;
-    for (size_t i = 0; i < server->_clients.size(); i++)
-    {
-        if (server->_clients[i]._nickname == nickname)
-        {
-            target = &server->_clients[i];
-            break;
-        }
-    }
-    if (!target)
-    {
-        client->sendMessage(":server 401 " + client->_nickname + " " + channel + " " + nickname + " :No such nick\r\n");
-        return;
-    }
+	Client *target = 0;
+	for (size_t i = 0; i < server->_clients.size(); i++)
+	{
+		if (server->_clients[i]._nickname == nickname)
+		{
+			target = &server->_clients[i];
+			break;
+		}
+	}
+	if (!target)
+	{
+		client->sendMessage(":server 401 " + client->_nickname + " " + channel + " " + nickname + " :No such nick\r\n");
+		return;
+	}
 
-    bool targetFound = false;
-    for (size_t i = 0; i < server->_channelManager._Channel[channel].size(); i++)
-    {
-        if (server->_channelManager._Channel[channel][i]->_fd == target->_fd)
-        {
-            targetFound = true;
-            break;
-        }
-    }
+	bool targetFound = false;
+	for (size_t i = 0; i < server->_channelManager._Channel[channel].size(); i++)
+	{
+		if (server->_channelManager._Channel[channel][i]->_fd == target->_fd)
+		{
+			targetFound = true;
+			break;
+		}
+	}
 
-    if (!targetFound)
-    {
-        client->sendMessage(":server 441 " + client->_nickname + " " + channel + " " + nickname + " :They aren't on that channel\r\n");
-        return;
-    }
+	if (!targetFound)
+	{
+		client->sendMessage(":server 441 " + client->_nickname + " " + channel + " " + nickname + " :They aren't on that channel\r\n");
+		return;
+	}
 
-    std::string kickMessage = ":" + client->_nickname + "!" + client->_username + "@" + client->_ip + 
-                             " KICK " + channel + " " + nickname + " :Kicked by operator\r\n";
+	std::string kickMessage = ":" + client->_nickname + "!" + client->_username + "@" + client->_ip + 
+							 " KICK " + channel + " " + nickname + " :Kicked by operator\r\n";
 	client->sendMessage(kickMessage);
-    client->sendMessageToChannel(kickMessage, server->_channelManager._Channel[channel]);
+	client->sendMessageToChannel(kickMessage, server->_channelManager._Channel[channel]);
 
-    server->_channelManager.removeClientFromChannel(channel, target);
+	server->_channelManager.removeClientFromChannel(channel, target);
 }

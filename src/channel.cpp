@@ -6,7 +6,7 @@
 /*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:27:39 by dravaono          #+#    #+#             */
-/*   Updated: 2025/02/14 23:54:31 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/02/18 12:17:29 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,15 +85,15 @@ void Channel::broadcastMessage(const std::string& channelName, const std::string
 
 bool Channel::isOperator(Client* client) const
 {
-    return _operators.find(client) != _operators.end();
+	return _operators.find(client) != _operators.end();
 }
 
 void Channel::addOperator(Client* client)
 {
-    _operators.insert(client);
+	_operators.insert(client);
 }
 
 void Channel::removeOperator(Client* client)
 {
-    _operators.erase(client);
+	_operators.erase(client);
 }
