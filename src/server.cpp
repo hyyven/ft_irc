@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 11:32:15 by afont             #+#    #+#             */
-/*   Updated: 2025/02/18 15:04:03 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/02/18 17:13:09 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,15 +128,8 @@ void	Server::initSocket()
 
 int	Server::getClientIndex(int fd)
 {
-	size_t	i;
-
-	i = 0;
-	while (i < this->_clients.size())
-	{
-		if (this->_clients[i]._fd == fd)
-			return (i);
-		i++;
-	}
+	if (_clients.find(fd) != _clients.end())
+			return (fd);
 	return (-1);
 }
 
@@ -144,10 +137,8 @@ void	Server::processData(int fd)
 {
 	std::string buf(1, 0);
 	size_t	bytes;
-	size_t	i;	
 
-	i = getClientIndex(fd);
-	if (i == size_t(-1))
+	if (_clients.find(fd) == _clients.end())
 	{
 		std::cout << "Client not found, index = -1" << std::endl;
 		return;
@@ -161,22 +152,19 @@ void	Server::processData(int fd)
 	}
 	else
 	{
-		if (parserCmd(&_clients[i], buf) == 1) //si c'est la fin du message
+		if (parserCmd(&_clients[fd], buf) == 1) //si c'est la fin du message
 		{
-			std::cout << "Message: [" << _clients[i]._dataCmd._message << "]" << std::endl;
+			std::cout << "Message: [" << _clients[fd]._dataCmd._message << "]" << std::endl;
 			// std::cout << "i: " << i << std::endl;
 			// printvector(dataCmd->_cmd);
-			if (initCliValue(&_clients[i], this))
+			if (initCliValue(&_clients[fd], this))
 			{
-				checkCmd(&_clients[i], _clients[i]._dataCmd._cmd, this);
+				checkCmd(&_clients[fd], _clients[fd]._dataCmd._cmd, this);
 			}
-			else
+			if (_clients.find(fd) != _clients.end() && _clients[fd]._fd == fd)
 			{
-				
-			}
-			if (i < _clients.size() && _clients[i]._fd == fd)
-			{
-				_clients[i]._dataCmd._message.clear();
+				//a tester
+				_clients[fd]._dataCmd._message.clear();
 			}
 		}
 	}
@@ -208,8 +196,8 @@ void	Server::initServer()
 				}
 				else
 				{
-					clientIndex = getClientIndex(this->_pfds[i].fd);
 					processData(this->_pfds[i].fd);
+					clientIndex = getClientIndex(this->_pfds[i].fd);
 					if (clientIndex != -1)
 						tryWelcome(&_clients[clientIndex]);
 				}
