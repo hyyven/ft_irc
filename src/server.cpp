@@ -6,7 +6,7 @@
 /*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 11:32:15 by afont             #+#    #+#             */
-/*   Updated: 2025/02/18 12:17:13 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/02/18 15:04:03 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,28 +46,18 @@ void	Server::removeClient(int fd)
 	size_t	i;
 
 	i = 0;
-	while (i < this->_pfds.size())
+	while (i < _pfds.size())
 	{
 		// std::cout << "\\" << std::endl;
-		if (this->_pfds[i].fd == fd)
+		if (_pfds[i].fd == fd)
 		{
-			this->_pfds.erase(this->_pfds.begin() + i);
-			break;
-		}
-		i++;
-	}
-	i = 0;
-	while (i < this->_clients.size())
-	{
-		if (this->_clients[i]._fd == fd)
-		{
-			// this->_clients.erase(this->_clients.begin() + i);
 			_pfds.erase(_pfds.begin() + i);
 			break;
 		}
 		i++;
 	}
-}
+	_clients.erase(fd);
+}	
 
 void	Server::newClient()
 {

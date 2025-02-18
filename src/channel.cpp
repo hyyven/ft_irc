@@ -6,19 +6,15 @@
 /*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:27:39 by dravaono          #+#    #+#             */
-/*   Updated: 2025/02/18 12:17:29 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/02/18 15:20:19 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/all.hpp"
 
-Channel::Channel()
-{
-}
+Channel::Channel() {}
 
-Channel::~Channel()
-{
-}
+Channel::~Channel() {}
 
 void Channel::createChannel(std::string channelName, Client *client)
 {
