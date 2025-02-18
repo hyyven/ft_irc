@@ -6,7 +6,7 @@
 /*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:05:17 by dravaono          #+#    #+#             */
-/*   Updated: 2025/02/18 12:17:17 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/02/19 00:52:52 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ void    checkCmd(Client *cli, std::vector<std::string> cmd, Server *server)
 	{
 		if (cmd[0] == "QUIT" && cmd[1] == ":Leaving")
 		{
+			server->_channelManager.removeClientFromAllChannels(cli);
 			std::cout << "Client " << cli->_nickname << " disconnected" << std::endl;
 			close(cli->_fd);
 			server->removeClient(cli->_fd);
@@ -74,13 +75,11 @@ void cmdJoin(Client *cli, std::string channel, Server *serv)
 
 	if (serv->_channelManager.channelExists(channel))
 	{
-		std::cout << "\nDEBUG - Client " << cli->_nickname << " joined channel " << channel << std::endl;
 		serv->_channelManager._Channel[channel].push_back(cli);
 		cli->sendMessageToChannel(joinMessage, serv->_channelManager._Channel[channel]);
 	}
 	else
 	{
-		std::cout << "\nDEBUG - Client " << cli->_nickname << " created channel " << channel << std::endl;
 		serv->_channelManager.createChannel(channel, cli);
 	}
 	cli->sendMessage(joinMessage);
@@ -183,7 +182,7 @@ void	cmdKick(Client *client, std::string channel, std::string nickname, Server *
 		return;
 	}
 
-	if (!server->_channelManager.isOperator(client))
+	if (!server->_channelManager.isOperator(channel, client))
 	{
 		client->sendMessage(":server 482 " + client->_nickname + " " + channel + " :You're not channel operator\r\n");
 		return;
