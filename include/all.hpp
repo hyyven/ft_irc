@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   all.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
+/*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 16:04:06 by afont             #+#    #+#             */
-/*   Updated: 2025/02/06 17:06:28 by afont            ###   ########.fr       */
+/*   Updated: 2025/02/11 20:39:18 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@
 #include <vector>
 #include <cstdlib>
 #include <map>
+#include <set>
 #include <unistd.h>
 #include <errno.h>
 

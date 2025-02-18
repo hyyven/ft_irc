@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
+/*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 12:55:43 by afont             #+#    #+#             */
-/*   Updated: 2025/02/07 14:54:24 by afont            ###   ########.fr       */
+/*   Updated: 2025/02/18 12:17:07 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,19 +56,19 @@ void	parse_argv(Server *server, int ac, char **av)
 
 std::vector<std::string> split(const std::string& str, char delimiter)
 {
-    std::vector<std::string> tokens;
-    std::stringstream ss(str);
-    std::string token;
-    
-    // std::cout << "Splitting" << std::endl;
-    while (std::getline(ss, token, delimiter))
-    {
-        // std::cout << token << "|";
-        tokens.push_back(token);
-    }
-    // std::cout << std::endl;
+	std::vector<std::string> tokens;
+	std::stringstream ss(str);
+	std::string token;
+	
+	// std::cout << "Splitting" << std::endl;
+	while (std::getline(ss, token, delimiter))
+	{
+		// std::cout << token << "|";
+		tokens.push_back(token);
+	}
+	// std::cout << std::endl;
 	// std::cout << "End of split" << std::endl;
-    return tokens;
+	return tokens;
 }
 
 int	parserCmd(Client *cli, std::string buf)
@@ -82,7 +82,7 @@ int	parserCmd(Client *cli, std::string buf)
 	}
 	else
 	{
-    	cli->_dataCmd._message += buf;
+		cli->_dataCmd._message += buf;
 	}
 	return (0);
 }
@@ -104,12 +104,10 @@ void	printvector(std::vector<std::string> vec)
 
 int	nickExists(std::string nickname, Server *server)
 {
-	std::vector<Client>::iterator it;
-
-	it = server->_clients.begin();
+	std::map<int, Client>::iterator it = server->_clients.begin();
 	while (it != server->_clients.end())
 	{
-		if (it->_nickname == nickname)
+		if (it->second._nickname == nickname)
 			return (1);
 		it++;
 	}
