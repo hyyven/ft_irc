@@ -6,7 +6,7 @@
 /*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:05:17 by dravaono          #+#    #+#             */
-/*   Updated: 2025/02/19 00:52:52 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/02/20 03:45:58 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,10 @@ void    checkCmd(Client *cli, std::vector<std::string> cmd, Server *server)
 		else if (cmd[0] == "KICK" && size >= 3)
 		{
 			cmdKick(cli, cmd[1], cmd[2], server);
+		}
+		else if (cmd[0] == "MODE" && size >= 4)
+		{
+			cmdMode(cli, cmd[1], cmd[2], cmd[3], server);
 		}
 		
 	}
@@ -225,4 +229,42 @@ void	cmdKick(Client *client, std::string channel, std::string nickname, Server *
 	client->sendMessageToChannel(kickMessage, server->_channelManager._Channel[channel]);
 
 	server->_channelManager.removeClientFromChannel(channel, target);
+}
+
+void cmdMode(Client *client, std::string channel, std::string mode, std::string target, Server *server)
+{
+	if (!server->_channelManager.channelExists(channel))
+	{
+		client->sendMessage(":server 403 " + client->_nickname + " " + channel + " :No such channel\r\n");
+		return;
+	}
+	if (!server->_channelManager.isOperator(channel, client))
+	{
+		client->sendMessage(":server 482 " + client->_nickname + " " + channel + " :You're not channel operator\r\n");
+		return;
+	}
+	Client *targetClient = server->_channelManager.getClientFromChannel(channel, target);
+	if (!targetClient)
+	{
+	    client->sendMessage(":server 401 " + client->_nickname + " " + target + " :No such nick/channel\r\n");
+	    return;
+	}
+	if (mode == "+o")
+	{
+		server->_channelManager.addOperator(channel, targetClient);
+		std::string modeMessage = ":" + client->_nickname + "!" + client->_username + "@" + client->_ip + 
+								" MODE " + channel + " +o " + target + "\r\n";
+		client->sendMessageToAllChannel(modeMessage, server->_channelManager._Channel[channel]);
+	}
+	else if (mode == "-o")
+	{
+		server->_channelManager.removeOperator(channel, targetClient);
+		std::string modeMessage = ":" + client->_nickname + "!" + client->_username + "@" + client->_ip + 
+								" MODE " + channel + " -o " + target + "\r\n";
+		client->sendMessageToAllChannel(modeMessage, server->_channelManager._Channel[channel]);
+	}
+	else
+	{
+		client->sendMessage(":server 472 " + client->_nickname + " " + mode + " :is unknown mode char to me\r\n");
+	}
 }

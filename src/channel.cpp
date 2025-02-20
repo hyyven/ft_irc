@@ -6,7 +6,7 @@
 /*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:27:39 by dravaono          #+#    #+#             */
-/*   Updated: 2025/02/19 00:52:16 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/02/20 03:32:20 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,4 +125,17 @@ void Channel::removeOperator(const std::string &channel, Client* client)
 			break;
 		}
 	}
+}
+
+Client *Channel::getClientFromChannel(std::string channel, std::string nickname)
+{
+	if (channelExists(channel))
+	{
+		for (size_t i = 0; i < _Channel[channel].size(); i++)
+		{
+			if (_Channel[channel][i]->_nickname == nickname)
+				return _Channel[channel][i];
+		}
+	}
+	return NULL;
 }

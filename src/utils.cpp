@@ -6,7 +6,7 @@
 /*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 12:55:43 by afont             #+#    #+#             */
-/*   Updated: 2025/02/18 12:17:07 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/02/20 02:42:23 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,6 +110,16 @@ int	nickExists(std::string nickname, Server *server)
 		if (it->second._nickname == nickname)
 			return (1);
 		it++;
+	}
+	return (0);
+}
+
+int nickExistsToChannel(std::string nickname, std::vector<Client*> clients)
+{
+	for (size_t i = 0; i < clients.size(); i++)
+	{
+		if (clients[i]->_nickname == nickname)
+			return (1);
 	}
 	return (0);
 }

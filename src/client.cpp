@@ -6,7 +6,7 @@
 /*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/21 13:34:47 by afont             #+#    #+#             */
-/*   Updated: 2025/02/18 12:17:25 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/02/19 03:53:27 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,4 +48,10 @@ void Client::sendMessageToChannel(const std::string& message, const std::vector<
 		if (clients[i]->_fd != _fd)
 			clients[i]->sendMessage(message);
 	}
+}
+
+void Client::sendMessageToAllChannel(const std::string& message, const std::vector<Client*>& clients)
+{
+	for (size_t i = 0; i < clients.size(); i++)	
+		clients[i]->sendMessage(message);
 }

@@ -6,7 +6,7 @@
 /*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:22:29 by dravaono          #+#    #+#             */
-/*   Updated: 2025/02/19 00:51:15 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/02/20 03:31:48 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,4 +33,5 @@ class   Channel
 		bool isOperator(const std::string &channel, Client* client);
 		void addOperator(const std::string &channel, Client* client);
 		void removeOperator(const std::string &channel, Client* client);
+		Client *getClientFromChannel(std::string channel, std::string nickname);
 };
