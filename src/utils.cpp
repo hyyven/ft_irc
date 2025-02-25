@@ -6,7 +6,7 @@
 /*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 12:55:43 by afont             #+#    #+#             */
-/*   Updated: 2025/02/20 02:42:23 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/02/25 05:07:25 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,16 +114,6 @@ int	nickExists(std::string nickname, Server *server)
 	return (0);
 }
 
-int nickExistsToChannel(std::string nickname, std::vector<Client*> clients)
-{
-	for (size_t i = 0; i < clients.size(); i++)
-	{
-		if (clients[i]->_nickname == nickname)
-			return (1);
-	}
-	return (0);
-}
-
 void	tryWelcome(Client *cli)
 {
 	if (cli->_nickname != "Unknown" && cli->_username != "Unknown" && cli->_isWelcomed == false)
@@ -170,4 +160,44 @@ int	initCliValue(Client *cli, Server *serv)
 	{
 		return (1);
 	}
+}
+
+std::string createModeMessage(Client *client, const std::string &channel, const std::string &mode, const std::string &target)
+{
+	return ":" + client->_nickname + "!" + client->_username + "@" + client->_ip + " MODE " + channel + " " + mode + " " + target + "\r\n";
+}
+
+bool validateModeRequest(Client *client, const std::string &channel, const std::string &mode, const std::string &target, Server *server)
+{
+	if (!server->_channelManager.channelExists(channel))
+	{
+		client->sendMessage(":server 403 " + client->_nickname + " " + channel + " :No such channel\r\n");
+		return false;
+	}
+	if (mode.empty())
+	{
+		client->sendMessage(":server 461 " + client->_nickname + " MODE :Not enough parameters\r\n");
+		return false;
+	}	
+	if (!server->_channelManager.isOperator(channel, client))
+	{
+		client->sendMessage(":server 482 " + client->_nickname + " " + channel + " :You're not channel operator\r\n");
+		return false;
+	}
+	if ((mode == "+o" || mode == "-o") && target.empty())
+	{
+		client->sendMessage(":server 461 " + client->_nickname + " MODE :Not enough parameters\r\n");
+		return false;
+	}
+	if (!nickExists(target, server))
+	{
+		client->sendMessage(":server 401 " + client->_nickname + " " + target + " :No such nick\r\n");
+		return false;
+	}
+	if (!server->_channelManager.getClientFromChannel(channel, target))
+	{
+		client->sendMessage(":server 441 " + client->_nickname + " " + target + " :They aren't on that channel\r\n");
+		return false;
+	}
+	return true;
 }

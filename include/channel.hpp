@@ -6,7 +6,7 @@
 /*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:22:29 by dravaono          #+#    #+#             */
-/*   Updated: 2025/02/20 03:31:48 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/02/25 04:16:08 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@ class   Channel
 	private:
 	public:
 		std::map<std::string, std::vector<Client*> > _Channel;
-		// std::set<Client*> _operators;
 		std::map<std::string, std::vector<Client*> > _channelOperators;
 		
 		Channel();
