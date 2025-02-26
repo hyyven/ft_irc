@@ -6,7 +6,7 @@
 /*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 12:55:43 by afont             #+#    #+#             */
-/*   Updated: 2025/02/25 05:07:25 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/02/26 03:48:39 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,6 +183,11 @@ bool validateModeRequest(Client *client, const std::string &channel, const std::
 	{
 		client->sendMessage(":server 482 " + client->_nickname + " " + channel + " :You're not channel operator\r\n");
 		return false;
+	}
+	if (mode == "+i" || mode == "-i")
+	{
+		std::cout << "Mode " << mode << " accepted without target" << std::endl;
+		return true;
 	}
 	if ((mode == "+o" || mode == "-o") && target.empty())
 	{

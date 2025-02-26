@@ -6,7 +6,7 @@
 /*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:22:29 by dravaono          #+#    #+#             */
-/*   Updated: 2025/02/25 04:16:08 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/02/26 03:18:31 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@ class   Channel
 	public:
 		std::map<std::string, std::vector<Client*> > _Channel;
 		std::map<std::string, std::vector<Client*> > _channelOperators;
+		std::set<std::string> _inviteOnlyChannels;
+		std::map<std::string, std::vector<std::string> > _invitedUsers;
 		
 		Channel();
 		~Channel();
@@ -33,4 +35,9 @@ class   Channel
 		void addOperator(const std::string &channel, Client* client);
 		void removeOperator(const std::string &channel, Client* client);
 		Client *getClientFromChannel(std::string channel, std::string nickname);
+
+		bool isInviteOnly(const std::string &channel);
+		void setInviteOnly(const std::string &channel, bool inviteOnly);
+		bool isInvited(const std::string &channel, const std::string &nickname);
+		void inviteUser(const std::string &channel, const std::string &nickname);
 };

@@ -6,7 +6,7 @@
 /*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:27:39 by dravaono          #+#    #+#             */
-/*   Updated: 2025/02/24 14:50:26 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/02/26 03:17:46 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,4 +138,31 @@ Client *Channel::getClientFromChannel(std::string channel, std::string nickname)
 		}
 	}
 	return NULL;
+}
+
+bool Channel::isInviteOnly(const std::string &channel)
+{
+	return _inviteOnlyChannels.find(channel) != _inviteOnlyChannels.end();
+}
+
+void Channel::setInviteOnly(const std::string &channel, bool inviteOnly)
+{
+	if (inviteOnly)
+		_inviteOnlyChannels.insert(channel);
+	else
+		_inviteOnlyChannels.erase(channel);
+}
+
+bool Channel::isInvited(const std::string &channel, const std::string &nickname)
+{
+	if (_invitedUsers.find(channel) == _invitedUsers.end())
+		return false;
+		
+	std::vector<std::string> &invitedUsers = _invitedUsers[channel];
+	return std::find(invitedUsers.begin(), invitedUsers.end(), nickname) != invitedUsers.end();
+}
+
+void Channel::inviteUser(const std::string &channel, const std::string &nickname)
+{
+	_invitedUsers[channel].push_back(nickname);
 }

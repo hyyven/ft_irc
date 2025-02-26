@@ -6,7 +6,7 @@
 /*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:05:17 by dravaono          #+#    #+#             */
-/*   Updated: 2025/02/25 05:05:11 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/02/26 04:37:55 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,11 +39,13 @@ void    checkCmd(Client *cli, std::vector<std::string> cmd, Server *server)
 		}
 		else if (cmd[0] == "JOIN" && cmd[1][0] != '#')
 		{
+			
 			std::string mess = cmd[1] + " :No such channel" + "\r\n";
 			send(cli->_fd, mess.c_str(), mess.length(), 0);
 		}
 		else if (cmd[0] == "JOIN" && cmd[1][0] == '#')
 		{
+			std::cout << "\nDEBUG: JOIN command: " << std::endl;
 			cmdJoin(cli, cmd[1], server);
 		}
 		else if (cmd[0] == "PRIVMSG" && size >= 3)
@@ -67,8 +69,14 @@ void    checkCmd(Client *cli, std::vector<std::string> cmd, Server *server)
 		}
 		else if (cmd[0] == "MODE" && size >= 3)
 		{
+			std::cout << "DEBUG: MODE command: " << std::endl;
 			std::string target = (size >= 4) ? cmd[3] : "";
 			cmdMode(cli, cmd[1], cmd[2], target, server);
+		}
+		else if (cmd[0] == "INVITE" && size >= 2)
+		{
+			std::cout << "DEBUG: INVITE command: " << std::endl;
+			cmdInvite(cli, cmd[1], cmd[2], server);
 		}
 	}
 }
@@ -79,6 +87,20 @@ void cmdJoin(Client *cli, std::string channel, Server *serv)
 
 	if (serv->_channelManager.channelExists(channel))
 	{
+		if (serv->_channelManager.isInviteOnly(channel))
+		{
+			std::cout << "Channel " << channel << " is invite-only" << std::endl;
+			
+			if (!serv->_channelManager.isInvited(channel, cli->_nickname) && 
+				!serv->_channelManager.isOperator(channel, cli))
+			{
+				std::cout << "User " << cli->_nickname << " is not invited to " << channel << std::endl;
+				cli->sendMessage(":server 473 " + cli->_nickname + " " + channel + " :Cannot join channel (+i)\r\n");
+				return;
+			}
+			std::cout << "User " << cli->_nickname << " is invited to " << channel << std::endl;
+		}
+		
 		serv->_channelManager._Channel[channel].push_back(cli);
 		cli->sendMessageToChannel(joinMessage, serv->_channelManager._Channel[channel]);
 	}
@@ -227,8 +249,56 @@ void cmdMode(Client *client, std::string channel, std::string mode, std::string 
 								" MODE " + channel + " -o " + target + "\r\n";
 		client->sendMessageToAllChannel(modeMessage, server->_channelManager._Channel[channel]);
 	}
+	else if (mode == "+i")
+	{
+		// Activer le mode invite-only
+		server->_channelManager.setInviteOnly(channel, true);
+		std::string modeMessage = ":" + client->_nickname + "!" + client->_username + "@" + client->_ip + 
+								" MODE " + channel + " +i\r\n";
+		client->sendMessageToAllChannel(modeMessage, server->_channelManager._Channel[channel]);
+	}
+	else if (mode == "-i")
+	{
+		// Désactiver le mode invite-only
+		server->_channelManager.setInviteOnly(channel, false);
+		std::string modeMessage = ":" + client->_nickname + "!" + client->_username + "@" + client->_ip + 
+								" MODE " + channel + " -i\r\n";
+		client->sendMessageToAllChannel(modeMessage, server->_channelManager._Channel[channel]);
+	}
 	else
 	{
 		client->sendMessage(":server 472 " + client->_nickname + " " + mode + " :is unknown mode char to me\r\n");
 	}
+}
+
+void cmdInvite(Client *client, std::string nickname, std::string channel, Server *server)
+{
+	std::cout << "INVITE command: " << client->_nickname << " invites " << nickname << " to " << channel << std::endl;
+	if (!server->_channelManager.channelExists(channel))
+	{
+		client->sendMessage(":server 403 " + client->_nickname + " " + channel + " :No such channel\r\n");
+		return;
+	}
+	if (!server->_channelManager.isOperator(channel, client))
+	{
+		client->sendMessage(":server 482 " + client->_nickname + " " + channel + " :You're not channel operator\r\n");
+		return;
+	}
+	if (!nickExists(nickname, server))
+	{
+		client->sendMessage(":server 401 " + client->_nickname + " " + nickname + " :No such nick\r\n");
+		return;
+	}
+	server->_channelManager.inviteUser(channel, nickname);
+	for (size_t i = 0; i < server->_clients.size(); ++i)
+	{
+		if (server->_clients[i]._nickname == nickname)
+		{
+			std::string inviteMessage = ":" + client->_nickname + "!" + client->_username + "@" + client->_ip + 
+									" INVITE " + nickname + " " + channel + "\r\n";
+			server->_clients[i].sendMessage(inviteMessage);
+			break;
+		}
+	}	
+	client->sendMessage(":server 341 " + client->_nickname + " " + nickname + " " + channel + "\r\n");
 }
