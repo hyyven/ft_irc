@@ -6,7 +6,7 @@
 /*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:06:00 by dravaono          #+#    #+#             */
-/*   Updated: 2025/02/26 03:34:55 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/03/01 04:22:09 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,3 +29,4 @@ void	cmdChangeNickname(Client *client, Server *server, std::vector<std::string> 
 void	cmdKick(Client *client, std::string channel, std::string nickname, Server *server);
 void	cmdMode(Client *client, std::string channel, std::string mode, std::string target, Server *server);
 void	cmdInvite(Client *client, std::string nickname, std::string channel, Server *server);
+void	cmdTopic(Client *client, std::string channel, std::string topic, Server *server);

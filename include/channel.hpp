@@ -6,7 +6,7 @@
 /*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:22:29 by dravaono          #+#    #+#             */
-/*   Updated: 2025/02/26 03:18:31 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/03/01 04:37:44 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@ class   Channel
 		std::map<std::string, std::vector<Client*> > _channelOperators;
 		std::set<std::string> _inviteOnlyChannels;
 		std::map<std::string, std::vector<std::string> > _invitedUsers;
+		std::map<std::string, std::string> _channelTopics;
+		std::set<std::string> _topicRestrictedChannels;
 		
 		Channel();
 		~Channel();
@@ -40,4 +42,9 @@ class   Channel
 		void setInviteOnly(const std::string &channel, bool inviteOnly);
 		bool isInvited(const std::string &channel, const std::string &nickname);
 		void inviteUser(const std::string &channel, const std::string &nickname);
+		
+		std::string getChannelTopic(const std::string &channel);
+		void setChannelTopic(const std::string &channel, const std::string &topic);
+		bool isTopicRestricted(const std::string &channel);
+		void setTopicRestriction(const std::string &channel, bool restricted);
 };

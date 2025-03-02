@@ -6,7 +6,7 @@
 /*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:27:39 by dravaono          #+#    #+#             */
-/*   Updated: 2025/02/26 03:17:46 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/03/01 04:37:09 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ void Channel::createChannel(std::string channelName, Client *client)
 {
 	_Channel[channelName].push_back(client);
 	_channelOperators[channelName].push_back(client);
-	// std::cout << "Channel " << channelName << " created by " << client->_nickname << " (operator)" << std::endl;
+	_channelTopics[channelName] = "";
 }
 
 std::string Channel::getChannelUsers(std::string channel)
@@ -165,4 +165,29 @@ bool Channel::isInvited(const std::string &channel, const std::string &nickname)
 void Channel::inviteUser(const std::string &channel, const std::string &nickname)
 {
 	_invitedUsers[channel].push_back(nickname);
+}
+
+std::string Channel::getChannelTopic(const std::string &channel)
+{
+	if (_channelTopics.find(channel) != _channelTopics.end())
+		return _channelTopics[channel];
+	return "";
+}
+
+void Channel::setChannelTopic(const std::string &channel, const std::string &topic)
+{
+	_channelTopics[channel] = topic;
+}
+
+bool Channel::isTopicRestricted(const std::string &channel)
+{
+	return _topicRestrictedChannels.find(channel) != _topicRestrictedChannels.end();
+}
+
+void Channel::setTopicRestriction(const std::string &channel, bool restricted)
+{
+	if (restricted)
+		_topicRestrictedChannels.insert(channel);
+	else
+		_topicRestrictedChannels.erase(channel);
 }
