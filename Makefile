@@ -3,7 +3,7 @@ OBJ_DIR = Objects
 OBJS = $(addprefix $(OBJ_DIR)/,$(SRCS:.cpp=.o))
 CC = g++
 CFLAGS = -Wall -Wextra -Werror -std=c++98
-NAME = irc
+NAME = ircserv
 TOTAL_FILES = $(words $(SRCS))
 
 all: $(NAME)

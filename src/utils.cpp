@@ -6,7 +6,7 @@
 /*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 12:55:43 by afont             #+#    #+#             */
-/*   Updated: 2025/02/18 12:17:07 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/03/04 06:07:36 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,7 +152,7 @@ int	initCliValue(Client *cli, Server *serv)
 	{
 		if (cli->_dataCmd._cmd[0] != "NICK" && cli->_dataCmd._cmd[0] != "USER" && cli->_dataCmd._cmd[0] != "PASS" && cli->_dataCmd._cmd[0] != "CAP")
 		{
-			cli->sendMessage(":server 451 " + cli->_nickname + " :You have not registered\r\n");
+			sendError(cli, "451", "", "You have not registered");
 		}
 		return (0);
 	}
@@ -160,4 +160,98 @@ int	initCliValue(Client *cli, Server *serv)
 	{
 		return (1);
 	}
+}
+
+std::string createModeMessage(Client *client, const std::string &channel, const std::string &mode, const std::string &target)
+{
+	return ":" + client->_nickname + "!" + client->_username + "@" + client->_ip + " MODE " + channel + " " + mode + " " + target + "\r\n";
+}
+
+bool validateModeRequest(Client *client, const std::string &channel, const std::string &mode, const std::string &target, Server *server)
+{
+	if (!server->_channelManager.channelExists(channel))
+	{
+		sendError(client, "403", channel, "No such channel");
+		return false;
+	}
+	if (mode.empty())
+	{
+		sendError(client, "461", "", "Not enough parameters");
+		return false;
+	}	
+	if (!server->_channelManager.isOperator(channel, client))
+	{
+		sendError(client, "482", channel, "You're not channel operator");
+		return false;
+	}
+
+	// Vérifications spécifiques selon le mode
+	if (mode == "+i" || mode == "-i")
+	{
+		return true;
+	}
+	else if (mode == "+k" || mode == "-k")
+	{
+		if (mode == "+k" && target.empty())
+		{
+			sendError(client, "461", "", "Not enough parameters");
+			return false;
+		}
+		return true;
+	}
+	else if (mode == "+l" || mode == "-l")
+	{
+		if (mode == "+l" && target.empty())
+		{
+			sendError(client, "461", "", "Not enough parameters");
+			return false;
+		}
+		return true;
+	}
+	else if (mode == "+o" || mode == "-o")
+	{
+		if (target.empty())
+		{
+			sendError(client, "461", "", "Not enough parameters");
+			return false;
+		}
+		if (!nickExists(target, server))
+		{
+			sendError(client, "401", target, "No such nick");
+			return false;
+		}
+		if (!server->_channelManager.getClientFromChannel(channel, target))
+		{
+			sendError(client, "441", target, "They aren't on that channel");
+			return false;
+		}
+	}
+	else
+	{
+		sendError(client, "472", mode, "is unknown mode char to me");
+		return false;
+	}
+
+	return true;
+}
+
+bool checkChannelExists(Client *client, const std::string &channel, Server *server)
+{
+	if (!server->_channelManager.channelExists(channel))
+	{
+		sendError(client, "403", channel, "No such channel");
+		return false;
+	}
+	return true;
+}
+
+std::string createFormattedMessage(const Client *client, const std::string &command, const std::string &params)
+{
+	return ":" + client->_nickname + "!" + client->_username + "@" + client->_ip + 
+		   " " + command + " " + params + "\r\n";
+}
+
+void sendError(Client *client, const std::string &code, const std::string &target, const std::string &message)
+{
+	client->sendMessage(":server " + code + " " + client->_nickname + " " + target + " :" + message + "\r\n");
 }
