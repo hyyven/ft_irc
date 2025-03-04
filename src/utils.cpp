@@ -6,7 +6,7 @@
 /*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 12:55:43 by afont             #+#    #+#             */
-/*   Updated: 2025/03/01 03:54:30 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/03/04 06:07:36 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,7 +152,7 @@ int	initCliValue(Client *cli, Server *serv)
 	{
 		if (cli->_dataCmd._cmd[0] != "NICK" && cli->_dataCmd._cmd[0] != "USER" && cli->_dataCmd._cmd[0] != "PASS" && cli->_dataCmd._cmd[0] != "CAP")
 		{
-			cli->sendMessage(":server 451 " + cli->_nickname + " :You have not registered\r\n");
+			sendError(cli, "451", "", "You have not registered");
 		}
 		return (0);
 	}
@@ -171,38 +171,87 @@ bool validateModeRequest(Client *client, const std::string &channel, const std::
 {
 	if (!server->_channelManager.channelExists(channel))
 	{
-		client->sendMessage(":server 403 " + client->_nickname + " " + channel + " :No such channel\r\n");
+		sendError(client, "403", channel, "No such channel");
 		return false;
 	}
 	if (mode.empty())
 	{
-		client->sendMessage(":server 461 " + client->_nickname + " MODE :Not enough parameters\r\n");
+		sendError(client, "461", "", "Not enough parameters");
 		return false;
 	}	
 	if (!server->_channelManager.isOperator(channel, client))
 	{
-		client->sendMessage(":server 482 " + client->_nickname + " " + channel + " :You're not channel operator\r\n");
+		sendError(client, "482", channel, "You're not channel operator");
 		return false;
 	}
+
+	// Vérifications spécifiques selon le mode
 	if (mode == "+i" || mode == "-i")
 	{
-		std::cout << "Mode " << mode << " accepted without target" << std::endl;
 		return true;
 	}
-	if ((mode == "+o" || mode == "-o") && target.empty())
+	else if (mode == "+k" || mode == "-k")
 	{
-		client->sendMessage(":server 461 " + client->_nickname + " MODE :Not enough parameters\r\n");
+		if (mode == "+k" && target.empty())
+		{
+			sendError(client, "461", "", "Not enough parameters");
+			return false;
+		}
+		return true;
+	}
+	else if (mode == "+l" || mode == "-l")
+	{
+		if (mode == "+l" && target.empty())
+		{
+			sendError(client, "461", "", "Not enough parameters");
+			return false;
+		}
+		return true;
+	}
+	else if (mode == "+o" || mode == "-o")
+	{
+		if (target.empty())
+		{
+			sendError(client, "461", "", "Not enough parameters");
+			return false;
+		}
+		if (!nickExists(target, server))
+		{
+			sendError(client, "401", target, "No such nick");
+			return false;
+		}
+		if (!server->_channelManager.getClientFromChannel(channel, target))
+		{
+			sendError(client, "441", target, "They aren't on that channel");
+			return false;
+		}
+	}
+	else
+	{
+		sendError(client, "472", mode, "is unknown mode char to me");
 		return false;
 	}
-	if (!nickExists(target, server))
+
+	return true;
+}
+
+bool checkChannelExists(Client *client, const std::string &channel, Server *server)
+{
+	if (!server->_channelManager.channelExists(channel))
 	{
-		client->sendMessage(":server 401 " + client->_nickname + " " + target + " :No such nick\r\n");
-		return false;
-	}
-	if (!server->_channelManager.getClientFromChannel(channel, target))
-	{
-		client->sendMessage(":server 441 " + client->_nickname + " " + target + " :They aren't on that channel\r\n");
+		sendError(client, "403", channel, "No such channel");
 		return false;
 	}
 	return true;
+}
+
+std::string createFormattedMessage(const Client *client, const std::string &command, const std::string &params)
+{
+	return ":" + client->_nickname + "!" + client->_username + "@" + client->_ip + 
+		   " " + command + " " + params + "\r\n";
+}
+
+void sendError(Client *client, const std::string &code, const std::string &target, const std::string &message)
+{
+	client->sendMessage(":server " + code + " " + client->_nickname + " " + target + " :" + message + "\r\n");
 }

@@ -6,7 +6,7 @@
 /*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:27:39 by dravaono          #+#    #+#             */
-/*   Updated: 2025/03/01 04:37:09 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/03/04 05:38:14 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -190,4 +190,55 @@ void Channel::setTopicRestriction(const std::string &channel, bool restricted)
 		_topicRestrictedChannels.insert(channel);
 	else
 		_topicRestrictedChannels.erase(channel);
+}
+
+bool Channel::hasPassword(const std::string &channel)
+{
+	return _channelPasswords.find(channel) != _channelPasswords.end();
+}
+
+void Channel::setChannelPassword(const std::string &channel, const std::string &password)
+{
+	_channelPasswords[channel] = password;
+}
+
+void Channel::removeChannelPassword(const std::string &channel)
+{
+	_channelPasswords.erase(channel);
+}
+
+bool Channel::checkChannelPassword(const std::string &channel, const std::string &password)
+{
+	if (!hasPassword(channel))
+		return true;
+	return _channelPasswords[channel] == password;
+}
+
+bool Channel::hasUserLimit(const std::string &channel)
+{
+	return _channelLimits.find(channel) != _channelLimits.end();
+}
+
+size_t Channel::getUserLimit(const std::string &channel)
+{
+	if (hasUserLimit(channel))
+		return _channelLimits[channel];
+	return 0;
+}
+
+void Channel::setUserLimit(const std::string &channel, size_t limit)
+{
+	_channelLimits[channel] = limit;
+}
+
+void Channel::removeUserLimit(const std::string &channel)
+{
+	_channelLimits.erase(channel);
+}
+
+bool Channel::isChannelFull(const std::string &channel)
+{
+	if (!hasUserLimit(channel))
+		return false;
+	return _Channel[channel].size() >= _channelLimits[channel];
 }

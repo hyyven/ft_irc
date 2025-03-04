@@ -6,7 +6,7 @@
 /*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:22:29 by dravaono          #+#    #+#             */
-/*   Updated: 2025/03/01 04:37:44 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/03/04 05:37:47 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,8 @@ class   Channel
 		std::map<std::string, std::vector<std::string> > _invitedUsers;
 		std::map<std::string, std::string> _channelTopics;
 		std::set<std::string> _topicRestrictedChannels;
+		std::map<std::string, std::string> _channelPasswords;
+		std::map<std::string, size_t> _channelLimits;
 		
 		Channel();
 		~Channel();
@@ -47,4 +49,15 @@ class   Channel
 		void setChannelTopic(const std::string &channel, const std::string &topic);
 		bool isTopicRestricted(const std::string &channel);
 		void setTopicRestriction(const std::string &channel, bool restricted);
+
+		bool hasPassword(const std::string &channel);
+		void setChannelPassword(const std::string &channel, const std::string &password);
+		void removeChannelPassword(const std::string &channel);
+		bool checkChannelPassword(const std::string &channel, const std::string &password);
+
+		bool hasUserLimit(const std::string &channel);
+		size_t getUserLimit(const std::string &channel);
+		void setUserLimit(const std::string &channel, size_t limit);
+		void removeUserLimit(const std::string &channel);
+		bool isChannelFull(const std::string &channel);
 };

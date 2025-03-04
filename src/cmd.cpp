@@ -6,7 +6,7 @@
 /*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:05:17 by dravaono          #+#    #+#             */
-/*   Updated: 2025/03/03 05:18:17 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/03/04 06:21:53 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,11 +24,10 @@ void	processQuitCmd(Client *cli, std::vector<std::string> cmd, Server *server)
 
 void processJoinCmd(Client *cli, std::vector<std::string> cmd, Server *server)
 {
-	std::cout << "join cmd" << std::endl;
 	if (cmd[1][0] == '#')
 		cmdJoin(cli, cmd[1], server);
 	else
-		cli->sendMessage(":server 403 " + cli->_nickname + " " + cmd[1] + " :No such channel\r\n");
+		sendError(cli, "403", cmd[1], "No such channel");
 }
 
 void processPrivmsgCmd(Client *cli, std::vector<std::string> cmd, Server *server)
@@ -108,15 +107,35 @@ void cmdJoin(Client *cli, std::string channel, Server *serv)
 
 	if (serv->_channelManager.channelExists(channel))
 	{
+		if (serv->_channelManager.hasPassword(channel))
+		{
+			if (cli->_dataCmd._cmd.size() < 3)
+			{
+				sendError(cli, "475", channel, "Cannot join channel (+k)");
+				return;
+			}
+			std::string password = cli->_dataCmd._cmd[2];
+			if (!serv->_channelManager.checkChannelPassword(channel, password))
+			{
+				sendError(cli, "475", channel, "Cannot join channel (+k)");
+				return;
+			}
+		}
 		if (serv->_channelManager.isInviteOnly(channel))
 		{		
 			if (!serv->_channelManager.isInvited(channel, cli->_nickname) && 
 				!serv->_channelManager.isOperator(channel, cli))
 			{
 				std::cout << "User " << cli->_nickname << " is not invited to " << channel << std::endl;
-				cli->sendMessage(":server 473 " + cli->_nickname + " " + channel + " :Cannot join channel (+i)\r\n");
+				sendError(cli, "473", channel, "Cannot join channel (+i)");
 				return;
 			}
+		}
+		if (serv->_channelManager.hasUserLimit(channel) && 
+			serv->_channelManager.isChannelFull(channel))
+		{
+			sendError(cli, "471", channel, "Cannot join channel (+l)");
+			return;
 		}
 		serv->_channelManager._Channel[channel].push_back(cli);
 		cli->sendMessageToChannel(joinMessage, serv->_channelManager._Channel[channel]);
@@ -130,7 +149,7 @@ void cmdJoin(Client *cli, std::string channel, Server *serv)
 	if (!topic.empty())
 		cli->sendMessage(":server 332 " + cli->_nickname + " " + channel + " :" + topic + "\r\n");
 	else
-		cli->sendMessage(":server 331 " + cli->_nickname + " " + channel + " :No topic is set\r\n");
+		sendError(cli, "331", channel, "No topic is set");
 	cli->sendMessage(":server 353 " + cli->_nickname + " = " + channel + " :" + serv->_channelManager.getChannelUsers(channel) + "\r\n");
 	cli->sendMessage(":server 366 " + cli->_nickname + " " + channel + " :End of NAMES list\r\n");
 }
@@ -138,16 +157,16 @@ void cmdJoin(Client *cli, std::string channel, Server *serv)
 void	verifyPassword(std::vector<std::string> cmd, Server *serv, Client *cli)
 {
 	if (cli->_isRegistered)
-		cli->sendMessage(":server 462 " + cli->_nickname + " :You may not reregister\r\n");
+		sendError(cli, "462", "", "You may not reregister");
 	else if (cmd.size() != 2)
 	{
-		cli->sendMessage(":server 461 " + cli->_nickname + " PASS :Not enough parameters\r\n");
+		sendError(cli, "461", "", "Not enough parameters");
 		close(cli->_fd);
 		serv->removeClient(cli->_fd);
 	}
 	else if (cmd[1] != serv->_password)
 	{
-		cli->sendMessage(":server 464 " + cli->_nickname + " :Password incorrect\r\n");
+		sendError(cli, "464", "", "Password incorrect");
 		close(cli->_fd);
 		serv->removeClient(cli->_fd);
 	}
@@ -159,25 +178,21 @@ void cmdPrivmsg(Client *sender, const std::string& target, const std::string& me
 {
 	if (target[0] == '#')
 	{
-		if (!server->_channelManager.channelExists(target))
-		{
-			sender->sendMessage(":server 403 " + sender->_nickname + " " + target + " :No such channel\r\n");
+		if (!checkChannelExists(sender, target, server))
 			return;
-		}
-		std::string formattedMessage = ":" + sender->_nickname + "!" + sender->_username + "@" + sender->_ip 
-										+ " PRIVMSG " + target + " :" + message + "\r\n";
+		std::string formattedMessage = createFormattedMessage(sender, "PRIVMSG", target + " :" + message);
 		server->_channelManager.broadcastMessage(target, formattedMessage, sender);
 	}
 	else
 	{
 		std::cout << "Private message from " << sender->_nickname << " to " << target << ": " << message << std::endl;
-		std::string formattedMessage = ":" + sender->_nickname + "!" + sender->_username + "@" + sender->_ip 
-										+ " PRIVMSG " + target + " :" + message + "\r\n";
+		std::string formattedMessage = createFormattedMessage(sender, "PRIVMSG", target + " :" + message);
 		for (size_t i = 0; i < server->_clients.size(); ++i)
 		{
 			if (server->_clients[i]._nickname == target)
 			{
 				send(server->_clients[i]._fd, formattedMessage.c_str(), formattedMessage.length(), 0);
+				break;
 			}
 		}
 	}
@@ -185,14 +200,10 @@ void cmdPrivmsg(Client *sender, const std::string& target, const std::string& me
 
 void cmdPart(Client *cli, const std::string& channel, Server *server)
 {
-	if (!server->_channelManager.channelExists(channel))
-	{
-		cli->sendMessage(":server 403 " + cli->_nickname + " " + channel + " :No such channel\r\n");
+	if (!checkChannelExists(cli, channel, server))
 		return;
-	}
 
-	std::string partMessage = ":" + cli->_nickname + "!" + cli->_username + "@" + cli->_ip
-								+ " PART " + channel + " :Leaving\r\n";
+	std::string partMessage = createFormattedMessage(cli, "PART", channel + " :Leaving");
 	cli->sendMessage(partMessage);
 	cli->sendMessageToChannel(partMessage, server->_channelManager._Channel[channel]);
 	server->_channelManager.removeClientFromChannel(channel, cli);
@@ -221,28 +232,27 @@ void	cmdKick(Client *cli, std::string channel, std::string nickname, Server *ser
 {
 	if (!server->_channelManager.channelExists(channel))
 	{
-		cli->sendMessage(":server 403 " + cli->_nickname + " " + channel + " :No such channel\r\n");
+		sendError(cli, "403", channel, "No such channel");
 		return;
 	}
 
 	if (!server->_channelManager.isOperator(channel, cli))
 	{
-		cli->sendMessage(":server 482 " + cli->_nickname + " " + channel + " :You're not channel operator\r\n");
+		sendError(cli, "482", channel, "You're not channel operator");
 		return;
 	}
 	if (!nickExists(nickname, server))
 	{
-		cli->sendMessage(":server 401 " + cli->_nickname + " " + nickname + " :No such nick\r\n");
+		sendError(cli, "401", nickname, "No such nick");
 		return;
 	}
 	Client *target = server->_channelManager.getClientFromChannel(channel, nickname);
 	if (!target)
 	{
-		cli->sendMessage(":server 441 " + cli->_nickname + " " + nickname + " :They aren't on that channel\r\n");
+		sendError(cli, "441", nickname, "They aren't on that channel");
 		return;
 	}
-	std::string kickMessage = ":" + cli->_nickname + "!" + cli->_username + "@" + cli->_ip + 
-							 " KICK " + channel + " " + nickname + " :Kicked by operator\r\n";
+	std::string kickMessage = createFormattedMessage(cli, "KICK", channel + " " + nickname + " :Kicked by operator");
 	cli->sendMessage(kickMessage);
 	cli->sendMessageToChannel(kickMessage, server->_channelManager._Channel[channel]);
 
@@ -253,66 +263,81 @@ void cmdMode(Client *cli, std::string channel, std::string mode, std::string tar
 {
 	if (!validateModeRequest(cli, channel, mode, target, server))
 		return;
+
 	Client *targetClient = server->_channelManager.getClientFromChannel(channel, target);
-	if (mode == "+o")
+	std::string modeMessage;
+
+	if (mode == "+o" || mode == "-o")
 	{
-		server->_channelManager.addOperator(channel, targetClient);
-		cli->sendMessageToAllChannel(createModeMessage(cli, channel, mode, target), server->_channelManager._Channel[channel]);
+		if (mode == "+o")
+			server->_channelManager.addOperator(channel, targetClient);
+		else
+			server->_channelManager.removeOperator(channel, targetClient);
+		modeMessage = createModeMessage(cli, channel, mode, target);
 	}
-	else if (mode == "-o")
+	else if (mode == "+i" || mode == "-i")
 	{
-		server->_channelManager.removeOperator(channel, targetClient);
-		std::string modeMessage = ":" + cli->_nickname + "!" + cli->_username + "@" + cli->_ip + 
-								" MODE " + channel + " -o " + target + "\r\n";
-		cli->sendMessageToAllChannel(modeMessage, server->_channelManager._Channel[channel]);
+		server->_channelManager.setInviteOnly(channel, mode == "+i");
+		modeMessage = createModeMessage(cli, channel, mode, "");
 	}
-	else if (mode == "+i")
+	else if (mode == "+t" || mode == "-t")
 	{
-		server->_channelManager.setInviteOnly(channel, true);
-		std::string modeMessage = ":" + cli->_nickname + "!" + cli->_username + "@" + cli->_ip + 
-								" MODE " + channel + " +i\r\n";
-		cli->sendMessageToAllChannel(modeMessage, server->_channelManager._Channel[channel]);
+		server->_channelManager.setTopicRestriction(channel, mode == "+t");
+		modeMessage = createModeMessage(cli, channel, mode, "");
 	}
-	else if (mode == "-i")
+	else if (mode == "+k" || mode == "-k")
 	{
-		server->_channelManager.setInviteOnly(channel, false);
-		std::string modeMessage = ":" + cli->_nickname + "!" + cli->_username + "@" + cli->_ip + 
-								" MODE " + channel + " -i\r\n";
-		cli->sendMessageToAllChannel(modeMessage, server->_channelManager._Channel[channel]);
+		if (mode == "+k")
+			server->_channelManager.setChannelPassword(channel, target);
+		else
+			server->_channelManager.removeChannelPassword(channel);
+		modeMessage = createModeMessage(cli, channel, mode, mode == "+k" ? target : "");
 	}
-	else if (mode == "+t")
+	else if (mode == "+l" || mode == "-l")
 	{
-		server->_channelManager.setTopicRestriction(channel, true);
-		std::string modeMessage = ":" + cli->_nickname + "!" + cli->_username + "@" + cli->_ip + 
-								" MODE " + channel + " +t\r\n";
-		cli->sendMessageToAllChannel(modeMessage, server->_channelManager._Channel[channel]);
-	}
-	else if (mode == "-t")
-	{
-		server->_channelManager.setTopicRestriction(channel, false);
-		std::string modeMessage = ":" + cli->_nickname + "!" + cli->_username + "@" + cli->_ip + 
-								" MODE " + channel + " -t\r\n";
-		cli->sendMessageToAllChannel(modeMessage, server->_channelManager._Channel[channel]);
+		if (mode == "+l")
+		{
+			if (target.empty())
+			{
+				sendError(cli, "461", "MODE", "Not enough parameters");
+				return;
+			}
+			size_t limit = std::atoi(target.c_str());
+			if (limit <= 0)
+			{
+				sendError(cli, "472", mode, "Invalid limit");
+				return;
+			}
+			server->_channelManager.setUserLimit(channel, limit);
+			modeMessage = createModeMessage(cli, channel, mode, target);
+		}
+		else
+		{
+			server->_channelManager.removeUserLimit(channel);
+			modeMessage = createModeMessage(cli, channel, mode, "");
+		}
 	}
 	else
-		cli->sendMessage(":server 472 " + cli->_nickname + " " + mode + " :is unknown mode char to me\r\n");
+	{
+		sendError(cli, "472", mode, "is unknown mode char to me");
+		return;
+	}
+
+	cli->sendMessageToAllChannel(modeMessage, server->_channelManager._Channel[channel]);
 }
 
 void cmdInvite(Client *cli, std::string nickname, std::string channel, Server *server)
 {
-	if (!server->_channelManager.channelExists(channel))
-	{
-		cli->sendMessage(":server 403 " + cli->_nickname + " " + channel + " :No such channel\r\n");
+	if (!checkChannelExists(cli, channel, server))
 		return;
-	}
 	if (!server->_channelManager.isOperator(channel, cli))
 	{
-		cli->sendMessage(":server 482 " + cli->_nickname + " " + channel + " :You're not channel operator\r\n");
+		sendError(cli, "482", channel, "You're not channel operator");
 		return;
 	}
 	if (!nickExists(nickname, server))
 	{
-		cli->sendMessage(":server 401 " + cli->_nickname + " " + nickname + " :No such nick\r\n");
+		sendError(cli, "401", nickname, "No such nick");
 		return;
 	}
 	server->_channelManager.inviteUser(channel, nickname);
@@ -320,38 +345,33 @@ void cmdInvite(Client *cli, std::string nickname, std::string channel, Server *s
 	{
 		if (server->_clients[i]._nickname == nickname)
 		{
-			std::string inviteMessage = ":" + cli->_nickname + "!" + cli->_username + "@" + cli->_ip + 
-									" INVITE " + nickname + " " + channel + "\r\n";
+			std::string inviteMessage = createFormattedMessage(cli, "INVITE", nickname + " " + channel);
 			server->_clients[i].sendMessage(inviteMessage);
 			break;
 		}
 	}	
-	cli->sendMessage(":server 341 " + cli->_nickname + " " + nickname + " " + channel + "\r\n");
+	sendError(cli, "341", nickname + " " + channel, "");
 }
 
 void cmdTopic(Client *cli, std::string channel, std::string topic, Server *server)
 {
-	if (!server->_channelManager.channelExists(channel))
-	{
-		cli->sendMessage(":server 403 " + cli->_nickname + " " + channel + " :No such channel\r\n");
+	if (!checkChannelExists(cli, channel, server))
 		return;
-	}
 	if (topic.empty())
 	{
 		std::string currentTopic = server->_channelManager.getChannelTopic(channel);
 		if (currentTopic.empty())
-			cli->sendMessage(":server 331 " + cli->_nickname + " " + channel + " :No topic is set\r\n");
+			sendError(cli, "331", channel, "No topic is set");
 		else
-			cli->sendMessage(":server 332 " + cli->_nickname + " " + channel + " :" + currentTopic + "\r\n");
+			sendError(cli, "332", channel, currentTopic);
 		return;
 	}
 	if (server->_channelManager.isTopicRestricted(channel) && !server->_channelManager.isOperator(channel, cli))
 	{
-		cli->sendMessage(":server 482 " + cli->_nickname + " " + channel + " :You're not channel operator\r\n");
+		sendError(cli, "482", channel, "You're not channel operator");
 		return;
 	}
 	server->_channelManager.setChannelTopic(channel, topic);
-	std::string topicMessage = ":" + cli->_nickname + "!" + cli->_username + "@" + cli->_ip + 
-							" TOPIC " + channel + " :" + topic + "\r\n";
+	std::string topicMessage = createFormattedMessage(cli, "TOPIC", channel + " :" + topic);
 	cli->sendMessageToAllChannel(topicMessage, server->_channelManager._Channel[channel]);
 }

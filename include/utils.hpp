@@ -6,7 +6,7 @@
 /*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 12:59:58 by afont             #+#    #+#             */
-/*   Updated: 2025/03/01 03:54:30 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/03/04 05:54:54 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,3 +22,6 @@ void						printvector(std::vector<std::string> vec);
 std::vector<std::string>	split(const std::string& str, char delimiter);
 std::string createModeMessage(Client *client, const std::string &channel, const std::string &mode, const std::string &target);
 bool validateModeRequest(Client *client, const std::string &channel, const std::string &mode, const std::string &target, Server *server);
+bool checkChannelExists(Client *client, const std::string &channel, Server *server);
+std::string createFormattedMessage(const Client *client, const std::string &command, const std::string &params);
+void sendError(Client *client, const std::string &code, const std::string &target, const std::string &message);
