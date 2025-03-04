@@ -6,7 +6,7 @@
 /*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:05:17 by dravaono          #+#    #+#             */
-/*   Updated: 2025/03/04 06:21:53 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/03/04 12:56:04 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ void    checkCmd(Client *cli, std::vector<std::string> cmd, Server *server)
 	size_t size = cmd.size();
 	if (size <= 1)
 		return ;
-	if (cmd[0] == "NICK")
+	if (cmd[0] == "NICK" && cli->_isWelcomed)
 		cmdChangeNickname(cli, server, cmd);
 	if (size >= 2)
 	{

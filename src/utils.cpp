@@ -6,7 +6,7 @@
 /*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 12:55:43 by afont             #+#    #+#             */
-/*   Updated: 2025/03/04 06:07:36 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/03/04 12:13:00 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,7 +186,7 @@ bool validateModeRequest(Client *client, const std::string &channel, const std::
 	}
 
 	// Vérifications spécifiques selon le mode
-	if (mode == "+i" || mode == "-i")
+	if (mode == "+i" || mode == "-i" || mode == "+t" || mode == "-t")
 	{
 		return true;
 	}
