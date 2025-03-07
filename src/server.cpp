@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 11:32:15 by afont             #+#    #+#             */
-/*   Updated: 2025/03/07 03:31:42 by afont            ###   ########.fr       */
+/*   Updated: 2025/03/07 18:59:22 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,18 +157,12 @@ void	Server::processData(int fd)
 	{
 		if (parserCmd(&_clients[fd], buf) == 1) //si c'est la fin du message
 		{
-			std::cout << "Message: [" << _clients[fd]._dataCmd._message << "]" << std::endl;
-			// std::cout << "i: " << i << std::endl;
-			// printvector(dataCmd->_cmd);
+			if (_clients[fd]._dataCmd._cmd[0] != "PONG")
+				std::cout << "Message: [" << _clients[fd]._dataCmd._message << "]" << std::endl;
 			if (initCliValue(&_clients[fd], this))
-			{
 				checkCmd(&_clients[fd], _clients[fd]._dataCmd._cmd, this);
-			}
 			if (_clients.find(fd) != _clients.end() && _clients[fd]._fd == fd)
-			{
-				//a tester
 				_clients[fd]._dataCmd._message.clear();
-			}
 		}
 	}
 }
@@ -190,7 +184,6 @@ void	Server::initServer()
 		i = 0;
 		while (i < this->_pfds.size())
 		{
-			// std::cout << i << std::endl;
 			if (this->_pfds[i].revents & POLLIN)	// Vérifie si des données sont disponibles en lecture
 			{
 				if (this->_pfds[i].fd == _socketFd)

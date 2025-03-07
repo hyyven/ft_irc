@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 11:27:39 by dravaono          #+#    #+#             */
-/*   Updated: 2025/03/04 05:38:14 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/03/07 18:56:18 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,7 +137,7 @@ Client *Channel::getClientFromChannel(std::string channel, std::string nickname)
 				return _Channel[channel][i];
 		}
 	}
-	return NULL;
+	return (NULL);
 }
 
 bool Channel::isInviteOnly(const std::string &channel)
