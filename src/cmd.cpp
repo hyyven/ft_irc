@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:05:17 by dravaono          #+#    #+#             */
-/*   Updated: 2025/03/07 03:27:04 by afont            ###   ########.fr       */
+/*   Updated: 2025/03/07 18:59:04 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,9 +103,7 @@ void    checkCmd(Client *cli, std::vector<std::string> cmd, Server *server)
 		else if (cmd[0] == "INVITE" && size >= 2)
 			cmdInvite(cli, cmd[1], cmd[2], server);
 		else if (cmd[0] == "TOPIC" && size >= 2)
-		{
 			processTopicCmd(cli, cmd, server);
-		}
 	}
 }
 
@@ -184,6 +182,8 @@ void	verifyPassword(std::vector<std::string> cmd, Server *serv, Client *cli)
 
 void cmdPrivmsg(Client *sender, const std::string& target, const std::string& message, Server *server)
 {
+	int	i;
+	
 	if (target[0] == '#')
 	{
 		if (!checkChannelExists(sender, target, server))
@@ -195,14 +195,10 @@ void cmdPrivmsg(Client *sender, const std::string& target, const std::string& me
 	{
 		std::cout << "Private message from " << sender->_nickname << " to " << target << ": " << message << std::endl;
 		std::string formattedMessage = createFormattedMessage(sender, "PRIVMSG", target + " :" + message);
-		for (size_t i = 0; i < server->_clients.size(); ++i)
-		{
-			if (server->_clients[i]._nickname == target)
-			{
-				send(server->_clients[i]._fd, formattedMessage.c_str(), formattedMessage.length(), 0);
-				break;
-			}
-		}
+		
+		i = nickExists(target, server);
+		if (i)
+			send(server->_clients[i]._fd, formattedMessage.c_str(), formattedMessage.length(), 0);
 	}
 }
 
@@ -210,7 +206,6 @@ void cmdPart(Client *cli, const std::string& channel, Server *server)
 {
 	if (!checkChannelExists(cli, channel, server))
 		return;
-
 	std::string partMessage = createFormattedMessage(cli, "PART", channel + " :Leaving");
 	cli->sendMessage(partMessage);
 	cli->sendMessageToChannel(partMessage, server->_channelManager._Channel[channel]);
@@ -243,7 +238,6 @@ void	cmdKick(Client *cli, std::string channel, std::string nickname, Server *ser
 		sendError(cli, "403", channel, "No such channel");
 		return;
 	}
-
 	if (!server->_channelManager.isOperator(channel, cli))
 	{
 		sendError(cli, "482", channel, "You're not channel operator");
@@ -336,6 +330,7 @@ void cmdMode(Client *cli, std::string channel, std::string mode, std::string tar
 
 void cmdInvite(Client *cli, std::string nickname, std::string channel, Server *server)
 {
+	int	i;
 	if (!checkChannelExists(cli, channel, server))
 		return;
 	if (!server->_channelManager.isOperator(channel, cli))
@@ -349,15 +344,12 @@ void cmdInvite(Client *cli, std::string nickname, std::string channel, Server *s
 		return;
 	}
 	server->_channelManager.inviteUser(channel, nickname);
-	for (size_t i = 0; i < server->_clients.size(); ++i)
+	i = nickExists(nickname, server);
+	if (i)
 	{
-		if (server->_clients[i]._nickname == nickname)
-		{
-			std::string inviteMessage = createFormattedMessage(cli, "INVITE", nickname + " " + channel);
-			server->_clients[i].sendMessage(inviteMessage);
-			break;
-		}
-	}	
+		std::string inviteMessage = createFormattedMessage(cli, "INVITE", nickname + " " + channel);
+		server->_clients[i].sendMessage(inviteMessage);
+	}
 	sendError(cli, "341", nickname + " " + channel, "");
 }
 

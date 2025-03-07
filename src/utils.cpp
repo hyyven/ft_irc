@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 12:55:43 by afont             #+#    #+#             */
-/*   Updated: 2025/03/07 02:22:07 by afont            ###   ########.fr       */
+/*   Updated: 2025/03/07 18:34:40 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,22 +71,38 @@ std::vector<std::string> split(const std::string& str, char delimiter)
 	return tokens;
 }
 
-int	parserCmd(Client *cli, std::string buf)
+// int	parserCmd(Client *cli, std::string buf)
+// {
+// 	std::cout << "buf: '" << buf << "'" << std::endl;
+// 	if (buf.find('\r') == 0)
+// 		cli->_dataCmd._lastBuf = buf;
+// 	else if (cli->_dataCmd._lastBuf.find('\r') == 0 && buf.find('\n') == 0)
+// 	{
+// 		cli->_dataCmd._cmd = split(cli->_dataCmd._message, ' ');
+// 		return (1);
+// 	}
+// 	else
+// 	{
+// 		cli->_dataCmd._message += buf;
+// 	}
+// 	return (0);
+// }
+
+int parserCmd(Client *cli, std::string buf)
 {
-	if (buf.find('\r') == 0)
-		cli->_dataCmd._lastBuf = buf;
-	else if (cli->_dataCmd._lastBuf.find('\r') == 0 && buf.find('\n') == 0)
+	(void)cli;
+	if (buf.find('\n') == 0)
 	{
 		cli->_dataCmd._cmd = split(cli->_dataCmd._message, ' ');
 		return (1);
 	}
 	else
 	{
-		cli->_dataCmd._message += buf;
+		if (buf.find('\r') != 0)
+			cli->_dataCmd._message += buf;
+		return (0);
 	}
-	return (0);
 }
-
 
 void	printvector(std::vector<std::string> vec)
 {
@@ -108,7 +124,7 @@ int	nickExists(std::string nickname, Server *server)
 	while (it != server->_clients.end())
 	{
 		if (it->second._nickname == nickname)
-			return (1);
+			return (it->second._fd);
 		it++;
 	}
 	return (0);
