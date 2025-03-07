@@ -24,6 +24,9 @@ class	Client
 		std::string	_ip;
 		std::string	_nickname;
 		std::string	_username;
+		time_t						_lastActivity;
+		time_t						_lastPingSent;
+		bool						_isWaitingPong;
 		
 		Client();
 		~Client();

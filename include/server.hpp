@@ -25,6 +25,7 @@ class	Server
 		// std::vector<Client>			_clients;
 		std::map<int, Client>		_clients;
 		Channel						_channelManager;
+		time_t						_lastConnectionCheck;
 		
 		Server();
 		~Server();
@@ -35,5 +36,6 @@ class	Server
 		void		newClient();
 		void		processData(int fd);
 		void		removeClient(int fd);
+		void		pingPong();
 		static void	signalHandler(int signum);
 };

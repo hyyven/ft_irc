@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:06:00 by dravaono          #+#    #+#             */
-/*   Updated: 2025/03/03 04:15:10 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/03/07 03:07:47 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,3 +36,4 @@ void	processQuitCmd(Client *cli, std::vector<std::string> cmd, Server *server);
 void	processJoinCmd(Client *cli, std::vector<std::string> cmd, Server *server);
 void	processPrivmsgCmd(Client *cli, std::vector<std::string> cmd, Server *server);
 void	processTopicCmd(Client *cli, std::vector<std::string> cmd, Server *server);
+void	processPongCmd(Client *cli);

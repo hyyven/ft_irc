@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 11:32:15 by afont             #+#    #+#             */
-/*   Updated: 2025/02/18 17:13:09 by afont            ###   ########.fr       */
+/*   Updated: 2025/03/07 03:31:42 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,10 @@
 
 
 bool Server::_signal = false;
-Server::Server() {}
+Server::Server()
+{
+	_lastConnectionCheck = time(NULL);
+}
 
 Server::~Server() {}
 
@@ -180,7 +183,8 @@ void	Server::initServer()
 	std::cout << "Server started on port " << _port << std::endl;
 	while (!this->_signal)
 	{
-		status = poll(&this->_pfds[0], this->_pfds.size(), -1);
+		pingPong();
+		status = poll(&this->_pfds[0], this->_pfds.size(), 1000);
 		if (status == -1 && !this->_signal)
 			throw std::runtime_error("Error: poll failed");
 		i = 0;
@@ -206,4 +210,44 @@ void	Server::initServer()
 		}
 	}
 	closeFd();
+}
+
+void	Server::pingPong()
+{
+	size_t				i;
+	time_t				currentTime;
+	std::vector<int>	clientsToRemove;
+	
+	currentTime = time(NULL);
+	// std::cout << "wait:" << currentTime - _lastConnectionCheck << std::endl;
+	if (currentTime - _lastConnectionCheck < 10) //grande valeur, a changer
+		return;
+	// std::cout << "Checking clients" << std::endl;
+	_lastConnectionCheck = currentTime;
+	std::map<int, Client>::iterator it = _clients.begin();
+	while (it != _clients.end())
+	{
+		// std::cout << "current time - last activity:" << currentTime - it->second._lastActivity << std::endl;
+		if (it->second._isWaitingPong)
+		{
+			std::cout << "Client " << it->second._nickname << " timed out" << std::endl;
+			clientsToRemove.push_back(it->first);
+		}
+		else if (currentTime - it->second._lastActivity > 10)
+		{
+			std::string message = "PING :server\r\n";
+			it->second.sendMessage(message);
+			it->second._lastPingSent = currentTime;
+			it->second._isWaitingPong = true;
+		}
+		it++;
+	}
+	i = 0;
+	while (i < clientsToRemove.size())
+	{
+		// std::cout << "Client " << _clients[clientsToRemove[i]]._nickname << " disconnected" << std::endl;
+		close(clientsToRemove[i]);
+		removeClient(clientsToRemove[i]);
+		i++;
+	}
 }
