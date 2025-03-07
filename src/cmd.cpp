@@ -3,14 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   cmd.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:05:17 by dravaono          #+#    #+#             */
-/*   Updated: 2025/03/04 12:56:04 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/03/07 03:27:04 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/all.hpp"
+
+void	processPongCmd(Client *cli)
+{
+	cli->_isWaitingPong = false;
+	cli->_lastActivity = time(NULL);
+}
 
 void	processQuitCmd(Client *cli, std::vector<std::string> cmd, Server *server)	
 {
@@ -87,6 +93,8 @@ void    checkCmd(Client *cli, std::vector<std::string> cmd, Server *server)
 			processPrivmsgCmd(cli, cmd, server);
 		else if (cmd[0] == "KICK" && size >= 3)
 			cmdKick(cli, cmd[1], cmd[2], server);
+		else if (cmd[0] == "PONG")
+			processPongCmd(cli);
 		else if (cmd[0] == "MODE" && size >= 3)
 		{
 			std::string target = (size >= 4) ? cmd[3] : "";

@@ -3,16 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/21 13:34:47 by afont             #+#    #+#             */
-/*   Updated: 2025/03/04 12:40:45 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/03/07 02:30:51 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/all.hpp"
 
-Client::Client() {}
+Client::Client()
+{
+	_lastActivity = time(NULL);
+	_lastPingSent = time(0);
+	_isWaitingPong = false;
+}
 
 Client::~Client() {}
 
