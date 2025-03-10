@@ -19,10 +19,10 @@ class	Server
 	public:
 		int							_port;
 		int							_socketFd;
+		int							_botClientFd;
 		static bool					_signal;
 		std::string					_password;
 		std::vector<struct pollfd>	_pfds;
-		// std::vector<Client>			_clients;
 		std::map<int, Client>		_clients;
 		Channel						_channelManager;
 		time_t						_lastConnectionCheck;
@@ -37,5 +37,7 @@ class	Server
 		void		processData(int fd);
 		void		removeClient(int fd);
 		void		pingPong();
+		void		createBotClient();
+		void		botSendMessage(std::string message);
 		static void	signalHandler(int signum);
 };

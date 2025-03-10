@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   all.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 16:04:06 by afont             #+#    #+#             */
-/*   Updated: 2025/03/01 03:54:30 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/03/10 14:13:16 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ class Server;
 class Client;
 class Channel;
 
+#include "bot.hpp"
 #include "cmd.hpp"
 #include "client.hpp"
 #include "channel.hpp"

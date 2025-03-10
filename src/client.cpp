@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/21 13:34:47 by afont             #+#    #+#             */
-/*   Updated: 2025/03/07 02:30:51 by afont            ###   ########.fr       */
+/*   Updated: 2025/03/10 13:13:10 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ Client::Client()
 	_lastActivity = time(NULL);
 	_lastPingSent = time(0);
 	_isWaitingPong = false;
+	_isBot = false;
 }
 
 Client::~Client() {}

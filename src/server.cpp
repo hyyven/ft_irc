@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 11:32:15 by afont             #+#    #+#             */
-/*   Updated: 2025/03/07 18:59:22 by afont            ###   ########.fr       */
+/*   Updated: 2025/03/10 13:13:35 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ bool Server::_signal = false;
 Server::Server()
 {
 	_lastConnectionCheck = time(NULL);
+	_botClientFd = -1;
 }
 
 Server::~Server() {}
@@ -42,6 +43,8 @@ void	Server::closeFd()
 		if (close(_socketFd) == -1)
 			std::cout << "close() failed" << std::endl;
 	}
+	if(_botClientFd != -1)
+		close(_botClientFd);
 }
 
 void	Server::removeClient(int fd)
@@ -93,9 +96,9 @@ void	Server::newClient()
 	cli._isRegistered = false;
 	cli._isWelcomed = false;
 	cli._ip = inet_ntoa(cli_addr.sin_addr);
-	// this->_clients.push_back(cli);
+	// _clients.push_back(cli);
 	_clients[cli_fd] = cli;  // Utiliser le fd comme clé
-	this->_pfds.push_back(pfd);
+	_pfds.push_back(pfd);
 }
 
 void	Server::initSocket()
@@ -175,6 +178,7 @@ void	Server::initServer()
 
 	initSocket();
 	std::cout << "Server started on port " << _port << std::endl;
+	createBotClient();
 	while (!this->_signal)
 	{
 		pingPong();
@@ -221,7 +225,7 @@ void	Server::pingPong()
 	while (it != _clients.end())
 	{
 		// std::cout << "current time - last activity:" << currentTime - it->second._lastActivity << std::endl;
-		if (it->second._isWaitingPong)
+		if (it->second._isWaitingPong && it->second._isBot == false)
 		{
 			std::cout << "Client " << it->second._nickname << " timed out" << std::endl;
 			clientsToRemove.push_back(it->first);
