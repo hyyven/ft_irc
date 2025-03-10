@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:05:17 by dravaono          #+#    #+#             */
-/*   Updated: 2025/03/07 18:59:04 by afont            ###   ########.fr       */
+/*   Updated: 2025/03/10 14:17:11 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -190,6 +190,8 @@ void cmdPrivmsg(Client *sender, const std::string& target, const std::string& me
 			return;
 		std::string formattedMessage = createFormattedMessage(sender, "PRIVMSG", target + " :" + message);
 		server->_channelManager.broadcastMessage(target, formattedMessage, sender);
+		if (target == "#bot")
+			processBotCommand(message, server);
 	}
 	else
 	{

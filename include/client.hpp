@@ -27,6 +27,7 @@ class	Client
 		time_t						_lastActivity;
 		time_t						_lastPingSent;
 		bool						_isWaitingPong;
+		bool						_isBot;
 		
 		Client();
 		~Client();
