@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
+/*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 11:32:15 by afont             #+#    #+#             */
-/*   Updated: 2025/03/10 13:13:35 by afont            ###   ########.fr       */
+/*   Updated: 2025/03/10 18:29:32 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -243,6 +243,7 @@ void	Server::pingPong()
 	while (i < clientsToRemove.size())
 	{
 		// std::cout << "Client " << _clients[clientsToRemove[i]]._nickname << " disconnected" << std::endl;
+		_channelManager.removeClientFromAllChannels(&_clients[clientsToRemove[i]]);
 		close(clientsToRemove[i]);
 		removeClient(clientsToRemove[i]);
 		i++;
