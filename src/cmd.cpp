@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
+/*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:05:17 by dravaono          #+#    #+#             */
-/*   Updated: 2025/03/10 14:17:11 by afont            ###   ########.fr       */
+/*   Updated: 2025/03/10 17:31:41 by dferjul          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -184,20 +184,23 @@ void cmdPrivmsg(Client *sender, const std::string& target, const std::string& me
 {
 	int	i;
 	
+	if (target.empty() || message.empty())
+    {
+        sendError(sender, "461", "PRIVMSG", "Not enough parameters");
+        return;
+    }
+	std::string formattedMessage = createFormattedMessage(sender, "PRIVMSG", target + " :" + message);
 	if (target[0] == '#')
 	{
 		if (!checkChannelExists(sender, target, server))
 			return;
-		std::string formattedMessage = createFormattedMessage(sender, "PRIVMSG", target + " :" + message);
 		server->_channelManager.broadcastMessage(target, formattedMessage, sender);
 		if (target == "#bot")
 			processBotCommand(message, server);
 	}
 	else
 	{
-		std::cout << "Private message from " << sender->_nickname << " to " << target << ": " << message << std::endl;
-		std::string formattedMessage = createFormattedMessage(sender, "PRIVMSG", target + " :" + message);
-		
+		std::cout << "Private message from " << sender->_nickname << " to " << target << ": " << message << std::endl;		
 		i = nickExists(target, server);
 		if (i)
 			send(server->_clients[i]._fd, formattedMessage.c_str(), formattedMessage.length(), 0);
