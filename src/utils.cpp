@@ -6,7 +6,7 @@
 /*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 12:55:43 by afont             #+#    #+#             */
-/*   Updated: 2025/03/07 18:34:40 by afont            ###   ########.fr       */
+/*   Updated: 2025/03/11 13:15:55 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,7 +166,7 @@ int	initCliValue(Client *cli, Server *serv)
 	}
 	if (!cli->_isRegistered || cli->_nickname == "Unknown" || cli->_username == "Unknown")
 	{
-		if (cli->_dataCmd._cmd[0] != "NICK" && cli->_dataCmd._cmd[0] != "USER" && cli->_dataCmd._cmd[0] != "PASS" && cli->_dataCmd._cmd[0] != "CAP")
+		if (size >= 1 && cli->_dataCmd._cmd[0] != "NICK" && cli->_dataCmd._cmd[0] != "USER" && cli->_dataCmd._cmd[0] != "PASS" && cli->_dataCmd._cmd[0] != "CAP")
 		{
 			sendError(cli, "451", "", "You have not registered");
 		}

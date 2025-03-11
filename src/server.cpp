@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dferjul <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: afont <afont@student.42nice.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/10 11:32:15 by afont             #+#    #+#             */
-/*   Updated: 2025/03/10 18:29:32 by dferjul          ###   ########.fr       */
+/*   Updated: 2025/03/11 13:22:48 by afont            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,7 +160,7 @@ void	Server::processData(int fd)
 	{
 		if (parserCmd(&_clients[fd], buf) == 1) //si c'est la fin du message
 		{
-			if (_clients[fd]._dataCmd._cmd[0] != "PONG")
+			if (_clients[fd]._dataCmd._cmd.size() != 2 || _clients[fd]._dataCmd._cmd[0] != "PONG" || _clients[fd]._dataCmd._cmd[1] != ":server")
 				std::cout << "Message: [" << _clients[fd]._dataCmd._message << "]" << std::endl;
 			if (initCliValue(&_clients[fd], this))
 				checkCmd(&_clients[fd], _clients[fd]._dataCmd._cmd, this);
